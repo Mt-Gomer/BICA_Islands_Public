@@ -30,6 +30,25 @@ This repo is intended to be **public**. Do not add owner names, addresses, or ot
 
 Served automatically by GitHub Pages from the `main` branch (site root, `/`). Any push to `main` that touches `site/` redeploys the live site above within a minute or two — no build step or manual publish required.
 
+## Opt-in submissions
+
+Each pin card has an "Opt-In Owner Info or Correction" button that opens an
+in-page form (name, corrected GPS coordinates, notes, required contact email,
+and a required consent checkbox). Submissions POST directly to
+[Formspree](https://formspree.io) from the browser — there's still no server
+or database in this repo.
+
+**Submissions never touch the live KML automatically.** They land in your
+Formspree inbox/dashboard for manual review, and you decide what (if anything)
+to merge into `BICA_Islands_Public.kml`. This matters because anyone can type
+any name into the form — without a review step, someone could impersonate an
+owner or vandalize a pin's data.
+
+Setup:
+1. Formspree endpoint is already wired up: `https://formspree.io/f/mojgjdoq` (set as `FORMSPREE_ENDPOINT` in `site/BICA_Islands_Public.html`).
+2. No CORS/domain config is required — Formspree accepts cross-origin AJAX (`fetch`) JSON submissions by default. Optionally, lock the form down to this site only via **Restrict to Domain**, under the **Project's** Settings tab (one level above the individual form) — set it to `mt-gomer.github.io`. Unauthorized-domain submissions get routed to the spam inbox instead of being rejected.
+3. On this form's **Settings** tab, under **Spam Protection**, turn on **Formshield** (ML-based spam filtering). **CAPTCHA** is optional if you want an extra layer on top.
+
 ## Running locally
 
 ```
