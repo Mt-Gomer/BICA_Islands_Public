@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BICA Island/Owner Search</title>
+<title>BICA Island Search</title>
 <style>
   :root{
     --ink:#16303f;        /* chart ink navy */
@@ -22,18 +22,9 @@
   .wrap{max-width:760px;margin:0 auto;padding:2rem 1rem 4rem}
   header{display:flex;align-items:baseline;gap:.75rem;border-bottom:3px double var(--ink);
          padding-bottom:.6rem;margin-bottom:1.2rem;flex-wrap:wrap}
-  h1{font-size:1.35rem;letter-spacing:.04em;text-transform:uppercase;font-weight:700}
+  h1{font-size:1.35rem;letter-spacing:.04em;font-weight:700}
+  h1 .sub{text-transform:none;font-weight:400;letter-spacing:normal;color:var(--dim);font-size:.85em}
   #count{font-family:var(--mono);font-size:.8rem;color:var(--dim)}
-  .admin{margin-top:2.5rem;border-top:1px solid var(--shoal);padding-top:.5rem}
-  .admin summary{font-family:var(--mono);font-size:.7rem;color:var(--dim);cursor:pointer;
-                 text-transform:uppercase;letter-spacing:.08em;width:max-content}
-  .admin summary:hover{color:var(--ink)}
-  .admin summary:focus-visible{outline:3px solid var(--buoy)}
-  .admin-body{background:var(--panel);border:1px solid var(--shoal);border-radius:6px;
-              padding:1rem;margin-top:.6rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
-  .admin-body code{font-family:var(--mono);font-size:.8em}
-  input[type=file]{font-family:var(--mono);font-size:.8rem}
-  .hint{color:var(--dim);font-size:.85rem}
   #searchbox{width:100%;font-size:1.15rem;padding:.7rem .9rem;border:2px solid var(--ink);
              border-radius:6px;background:var(--panel);font-family:var(--sans);color:var(--ink)}
   #searchbox:focus{outline:3px solid var(--buoy);outline-offset:1px;border-color:var(--buoy)}
@@ -63,32 +54,22 @@
 <body>
 <div class="wrap">
   <header>
-    <h1>BICA Island/Owner Search</h1>
+    <h1>BICA ISLAND SEARCH <span class="sub">(TP numbers only)</span></h1>
     <span id="count">no file loaded</span>
   </header>
 
-  <input id="searchbox" type="search" placeholder="Search TP numbers, owner names, other metadata…"
+  <input id="searchbox" type="search" placeholder="Search full or partial TP numbers…"
          autocomplete="off" disabled aria-label="Search pins">
 
   <div id="results" aria-live="polite"></div>
-
-  <details class="admin" id="loader">
-    <summary>Admin / Testing / Maintenance</summary>
-    <div class="admin-body">
-      <input type="file" id="file" accept=".kml,application/vnd.google-earth.kml+xml">
-      <span class="hint">Load a .kml manually — e.g. to preview an updated file before publishing,
-      or when this page is opened locally (file://) and can't auto-load
-      <code>BICA_TP_Search.kml</code>. Everything runs in your browser — nothing is uploaded.</span>
-    </div>
-  </details>
 </div>
 
 <!-- ================================================================
      PIN DATA
-     This page loads its pins from a file named  BICA_TP_Search.kml
+     This page loads its pins from a file named  BICA_Islands_Public.kml
      located in the SAME directory as this HTML file.
 
-     To update the pins: replace BICA_TP_Search.kml with a new export.
+     To update the pins: replace BICA_Islands_Public.kml with a new export.
      This HTML file never needs to be edited.
      ================================================================ -->
 
@@ -99,7 +80,6 @@
   var box = document.getElementById("searchbox");
   var results = document.getElementById("results");
   var count = document.getElementById("count");
-  var loader = document.getElementById("loader");
 
   // ---- KML parsing -------------------------------------------------------
   function parseKML(text){
@@ -193,13 +173,13 @@
     return "";
   }
 
-  // ---- Auto-load: BICA_TP_Search.kml next to this file > manual picker ----
-  var KML_FILE = "BICA_TP_Search.kml";
+  // ---- Auto-load: BICA_Islands_Public.kml next to this file ----
+  var KML_FILE = "BICA_Islands_Public.kml";
 
-  function activate(kmlText, sourceLabel){
+  function activate(kmlText){
     // strip BOM / leading whitespace so the XML declaration is at position 0
     pins = parseKML(kmlText.replace(/^\uFEFF/, "").trim());
-    count.textContent = pins.length + " pins loaded" + (sourceLabel ? " (" + sourceLabel + ")" : "");
+    count.textContent = pins.length + " pins loaded";
     box.disabled = false;
     box.focus();
     render(box.value);
@@ -208,30 +188,12 @@
   function init(){
     fetch(KML_FILE, {cache: "no-store"})
       .then(function(r){ if (!r.ok) throw new Error(r.status); return r.text(); })
-      .then(function(text){ activate(text, KML_FILE); })
+      .then(function(text){ activate(text); })
       .catch(function(){
-        // KML missing, or page opened via file:// — point to the admin banner
-        loader.open = true;
         count.textContent = "could not load " + KML_FILE;
       });
   }
   init();
-
-  // ---- Manual file loading (admin banner; KML only) ----
-  document.getElementById("file").addEventListener("change", function(e){
-    var f = e.target.files[0];
-    if (!f) return;
-    if (/\.kmz$/i.test(f.name)){
-      count.textContent = "KMZ is zipped — unzip it and load the doc.kml inside.";
-      return;
-    }
-    var r = new FileReader();
-    r.onload = function(){
-      try { activate(r.result, f.name); }
-      catch(err){ count.textContent = "Load failed: " + err.message; }
-    };
-    r.readAsText(f);
-  });
 
   // ---- Search ------------------------------------------------------------
   var t = null;
@@ -244,7 +206,8 @@
     var q = query.trim().toLowerCase();
     results.innerHTML = "";
     if (!q){
-      results.innerHTML = '<p class="empty">Type to search ' + pins.length + ' pins.</p>';
+      results.innerHTML = '<p class="empty">Type to search ' + pins.length
+        + ' location pins. All were manually annotated and could have errors.</p>';
       return;
     }
     var terms = q.split(/\s+/);
