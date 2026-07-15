@@ -49,6 +49,29 @@
     .pin{animation:rise .12s ease-out}
     @keyframes rise{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
   }
+
+  dialog#shareModal{border:2px solid var(--ink);border-radius:8px;padding:0;max-width:420px;
+        width:calc(100% - 2rem);color:var(--ink);font-family:var(--sans)}
+  dialog#shareModal::backdrop{background:rgba(22,48,63,.45)}
+  #shareModal .modal-body{padding:1.1rem 1.2rem}
+  #shareModal h3{font-size:1.05rem;margin-bottom:.2rem}
+  #shareModal .modal-tp{font-family:var(--mono);font-size:.8rem;color:var(--dim);margin-bottom:.7rem}
+  #shareModal p.hint{font-size:.78rem;color:var(--dim);margin-bottom:.8rem}
+  #shareModal label{display:block;font-size:.82rem;font-weight:600;margin:.6rem 0 .25rem}
+  #shareModal input[type="text"],#shareModal input[type="email"],#shareModal textarea{
+        width:100%;font-family:var(--sans);font-size:.9rem;padding:.5rem .6rem;
+        border:1px solid var(--ink);border-radius:5px;background:var(--panel);color:var(--ink)}
+  #shareModal textarea{min-height:4.5em;resize:vertical}
+  #shareModal .consent{display:flex;gap:.5rem;align-items:flex-start;margin-top:.8rem;font-size:.78rem}
+  #shareModal .consent input{margin-top:.2rem}
+  #shareModal .modal-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem}
+  #shareModal .modal-actions button{font-family:var(--mono);font-size:.8rem;padding:.4rem .8rem;
+        border-radius:4px;cursor:pointer}
+  #shareModal .modal-actions button[value="cancel"]{background:var(--paper);border:1px solid var(--ink);color:var(--ink)}
+  #shareModal .modal-actions button[type="submit"]{background:var(--buoy);border:1px solid var(--buoy);color:#fff}
+  #shareModal .modal-actions button:hover{opacity:.85}
+  #shareModal .status{font-size:.8rem;margin-top:.6rem}
+  #shareModal .status.error{color:var(--buoy)}
 </style>
 </head>
 <body>
@@ -63,6 +86,37 @@
 
   <div id="results" aria-live="polite"></div>
 </div>
+
+<dialog id="shareModal">
+  <form class="modal-body" method="dialog" id="shareForm">
+    <h3>Share info about this pin</h3>
+    <div class="modal-tp" id="shareModalTP"></div>
+    <p class="hint">Optional. This is opt-in only — nothing you enter here appears on the
+      public map. It goes to the site maintainer, who reviews and manually adds it later.</p>
+
+    <label for="shareName">Name / owner (optional)</label>
+    <input type="text" id="shareName" name="name" maxlength="120" autocomplete="off">
+
+    <label for="shareNotes">Notes (optional)</label>
+    <textarea id="shareNotes" name="notes" maxlength="1000"></textarea>
+
+    <label for="shareEmail">Your email (optional, in case we have questions)</label>
+    <input type="email" id="shareEmail" name="email" autocomplete="off">
+
+    <label class="consent">
+      <input type="checkbox" id="shareConsent" required>
+      <span>I'm choosing to share this information publicly and confirm I'm the owner
+        or otherwise authorized to share it for this pin.</span>
+    </label>
+
+    <div class="status" id="shareStatus" role="status" aria-live="polite"></div>
+
+    <div class="modal-actions">
+      <button type="button" value="cancel" id="shareCancel">Cancel</button>
+      <button type="submit" id="shareSubmit">Submit</button>
+    </div>
+  </form>
+</dialog>
 
 <!-- ================================================================
      PIN DATA
@@ -252,6 +306,7 @@
           + '<a href="' + geo + '">geo: (mobile)</a>'
           + '<button type="button" data-copy="' + ll + '">Copy coords</button>'
           + '<button type="button" data-kml="1">Download pin .kml</button>'
+          + '<button type="button" data-share="1">Share your info</button>'
           + "</div>";
     el.innerHTML = html;
 
@@ -265,8 +320,77 @@
     el.querySelector("[data-kml]").addEventListener("click", function(){
       downloadPinKML(p);
     });
+    el.querySelector("[data-share]").addEventListener("click", function(){
+      openShareModal(p);
+    });
     return el;
   }
+
+  // ---- Opt-in "share your info" modal ------------------------------------
+  // Submissions go to Formspree, NOT into the live KML. They land in your
+  // Formspree inbox/spreadsheet for manual review before you merge anything
+  // into BICA_Islands_Public.kml. See README "Opt-in submissions" section.
+  var FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+
+  var shareModal = document.getElementById("shareModal");
+  var shareForm = document.getElementById("shareForm");
+  var shareStatus = document.getElementById("shareStatus");
+  var shareModalTP = document.getElementById("shareModalTP");
+  var shareSubmit = document.getElementById("shareSubmit");
+  var currentSharePin = null;
+
+  function openShareModal(p){
+    currentSharePin = p;
+    shareModalTP.textContent = p.name + "  ·  " + p.lat.toFixed(6) + "," + p.lng.toFixed(6);
+    shareForm.reset();
+    shareStatus.textContent = "";
+    shareStatus.className = "status";
+    shareSubmit.disabled = false;
+    shareSubmit.textContent = "Submit";
+    shareModal.showModal();
+  }
+
+  document.getElementById("shareCancel").addEventListener("click", function(){
+    shareModal.close();
+  });
+
+  shareForm.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    if (!currentSharePin) return;
+    if (FORMSPREE_ENDPOINT.indexOf("YOUR_FORM_ID") !== -1){
+      shareStatus.className = "status error";
+      shareStatus.textContent = "Submissions aren't configured yet on this deployment.";
+      return;
+    }
+    var payload = {
+      tp_number: currentSharePin.name,
+      lat: currentSharePin.lat,
+      lng: currentSharePin.lng,
+      name: document.getElementById("shareName").value.trim(),
+      notes: document.getElementById("shareNotes").value.trim(),
+      email: document.getElementById("shareEmail").value.trim()
+    };
+    shareSubmit.disabled = true;
+    shareSubmit.textContent = "Submitting…";
+    shareStatus.className = "status";
+    shareStatus.textContent = "";
+    fetch(FORMSPREE_ENDPOINT, {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "Accept": "application/json"},
+      body: JSON.stringify(payload)
+    }).then(function(r){
+      if (!r.ok) throw new Error("bad status " + r.status);
+      shareStatus.className = "status";
+      shareStatus.textContent = "Thanks — submitted for review.";
+      shareSubmit.textContent = "Submitted";
+      setTimeout(function(){ shareModal.close(); }, 1100);
+    }).catch(function(){
+      shareStatus.className = "status error";
+      shareStatus.textContent = "Something went wrong. Please try again later.";
+      shareSubmit.disabled = false;
+      shareSubmit.textContent = "Submit";
+    });
+  });
 
   function downloadPinKML(p){
     var kml = '<?xml version="1.0" encoding="UTF-8"?>\n'

@@ -30,6 +30,24 @@ This repo is intended to be **public**. Do not add owner names, addresses, or ot
 
 Served automatically by GitHub Pages from the `main` branch (site root, `/`). Any push to `main` that touches `site/` redeploys the live site above within a minute or two — no build step or manual publish required.
 
+## Opt-in submissions
+
+Each pin card has a "Share your info" button that opens an in-page form (name,
+notes, contact email, and a required consent checkbox). Submissions POST
+directly to [Formspree](https://formspree.io) from the browser — there's still
+no server or database in this repo.
+
+**Submissions never touch the live KML automatically.** They land in your
+Formspree inbox/dashboard for manual review, and you decide what (if anything)
+to merge into `BICA_Islands_Public.kml`. This matters because anyone can type
+any name into the form — without a review step, someone could impersonate an
+owner or vandalize a pin's data.
+
+Setup:
+1. Create a free form at formspree.io and grab its endpoint (`https://formspree.io/f/XXXXXXX`).
+2. In `site/BICA_Islands_Public.html`, set `FORMSPREE_ENDPOINT` to that URL (search for `YOUR_FORM_ID`).
+3. Until that's set, the button shows an error instead of submitting — so the placeholder is safe to ship.
+
 ## Running locally
 
 ```
