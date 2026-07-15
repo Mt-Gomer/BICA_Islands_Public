@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BICA Island/Owner Search</title>
+<style>
+  :root{
+    --ink:#16303f;        /* chart ink navy */
+    --paper:#f2f5f3;      /* pale chart paper */
+    --panel:#ffffff;
+    --shoal:#d7e4e8;      /* shallow-water tint */
+    --buoy:#c2452d;       /* buoy red accent */
+    --dim:#5f7480;
+    --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+    --sans:"Avenir Next","Segoe UI",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);line-height:1.45;
+       background-image:radial-gradient(circle,rgba(22,48,63,.06) 1px,transparent 1px);
+       background-size:26px 26px;min-height:100vh}
+  .wrap{max-width:760px;margin:0 auto;padding:2rem 1rem 4rem}
+  header{display:flex;align-items:baseline;gap:.75rem;border-bottom:3px double var(--ink);
+         padding-bottom:.6rem;margin-bottom:1.2rem;flex-wrap:wrap}
+  h1{font-size:1.35rem;letter-spacing:.04em;text-transform:uppercase;font-weight:700}
+  #count{font-family:var(--mono);font-size:.8rem;color:var(--dim)}
+  .admin{margin-top:2.5rem;border-top:1px solid var(--shoal);padding-top:.5rem}
+  .admin summary{font-family:var(--mono);font-size:.7rem;color:var(--dim);cursor:pointer;
+                 text-transform:uppercase;letter-spacing:.08em;width:max-content}
+  .admin summary:hover{color:var(--ink)}
+  .admin summary:focus-visible{outline:3px solid var(--buoy)}
+  .admin-body{background:var(--panel);border:1px solid var(--shoal);border-radius:6px;
+              padding:1rem;margin-top:.6rem;display:flex;gap:.8rem;align-items:center;flex-wrap:wrap}
+  .admin-body code{font-family:var(--mono);font-size:.8em}
+  input[type=file]{font-family:var(--mono);font-size:.8rem}
+  .hint{color:var(--dim);font-size:.85rem}
+  #searchbox{width:100%;font-size:1.15rem;padding:.7rem .9rem;border:2px solid var(--ink);
+             border-radius:6px;background:var(--panel);font-family:var(--sans);color:var(--ink)}
+  #searchbox:focus{outline:3px solid var(--buoy);outline-offset:1px;border-color:var(--buoy)}
+  #results{margin-top:1.2rem}
+  .pin{background:var(--panel);border:1px solid var(--shoal);border-left:4px solid var(--buoy);
+       border-radius:0 6px 6px 0;padding:.8rem 1rem;margin-bottom:.7rem}
+  .pin h2{font-size:1.02rem;font-weight:600}
+  .path{font-family:var(--mono);font-size:.7rem;color:var(--dim);text-transform:uppercase;
+        letter-spacing:.05em;margin-bottom:.15rem}
+  .coords{font-family:var(--mono);font-size:.82rem;color:var(--dim);margin:.15rem 0 .4rem}
+  .desc{font-size:.85rem;color:var(--ink);margin:.3rem 0 .45rem;max-height:5.5em;overflow:auto;
+        white-space:pre-wrap;word-break:break-word}
+  .links{display:flex;gap:.5rem;flex-wrap:wrap}
+  .links a,.links button{font-family:var(--mono);font-size:.75rem;text-decoration:none;
+        color:var(--ink);background:var(--paper);border:1px solid var(--ink);border-radius:4px;
+        padding:.3rem .6rem;cursor:pointer}
+  .links a:hover,.links button:hover{background:var(--ink);color:var(--paper)}
+  .links a:focus-visible,.links button:focus-visible,#searchbox:focus-visible{outline:3px solid var(--buoy)}
+  mark{background:#ffe08a;color:inherit;padding:0 1px}
+  .empty{color:var(--dim);font-style:italic;padding:1rem 0}
+  @media (prefers-reduced-motion:no-preference){
+    .pin{animation:rise .12s ease-out}
+    @keyframes rise{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>BICA Island/Owner Search</h1>
+    <span id="count">no file loaded</span>
+  </header>
+
+  <input id="searchbox" type="search" placeholder="Search TP numbers, owner names, other metadata…"
+         autocomplete="off" disabled aria-label="Search pins">
+
+  <div id="results" aria-live="polite"></div>
+
+  <details class="admin" id="loader">
+    <summary>Admin / Testing / Maintenance</summary>
+    <div class="admin-body">
+      <input type="file" id="file" accept=".kml,application/vnd.google-earth.kml+xml">
+      <span class="hint">Load a .kml manually — e.g. to preview an updated file before publishing,
+      or when this page is opened locally (file://) and can't auto-load
+      <code>BICA_TP_Search.kml</code>. Everything runs in your browser — nothing is uploaded.</span>
+    </div>
+  </details>
+</div>
+
+<!-- ================================================================
+     PIN DATA
+     This page loads its pins from a file named  BICA_TP_Search.kml
+     located in the SAME directory as this HTML file.
+
+     To update the pins: replace BICA_TP_Search.kml with a new export.
+     This HTML file never needs to be edited.
+     ================================================================ -->
+
+<script>
+(function(){
+  "use strict";
+  var pins = [];
+  var box = document.getElementById("searchbox");
+  var results = document.getElementById("results");
+  var count = document.getElementById("count");
+  var loader = document.getElementById("loader");
+
+  // ---- KML parsing -------------------------------------------------------
+  function parseKML(text){
+    var doc = new DOMParser().parseFromString(text, "application/xml");
+    if (doc.querySelector("parsererror")) throw new Error("Not valid KML/XML.");
+
+    // Map Schema SimpleField internal names -> human displayNames
+    var fieldNames = {};
+    var sf = doc.getElementsByTagName("SimpleField");
+    for (var f = 0; f < sf.length; f++){
+      var dn = sf[f].getElementsByTagName("displayName")[0];
+      fieldNames[sf[f].getAttribute("name")] = dn ? dn.textContent.trim() : sf[f].getAttribute("name");
+    }
+    var SKIP_FIELDS = /^(X|Y|unnamed( \(\d+\))?)$/i;
+
+    var out = [];
+    var placemarks = doc.getElementsByTagName("Placemark");
+    for (var i = 0; i < placemarks.length; i++){
+      var pm = placemarks[i];
+      // Point coordinates only (pins). Skip lines/polygons.
+      var pt = pm.getElementsByTagName("Point")[0];
+      if (!pt) continue;
+      var coordEl = pt.getElementsByTagName("coordinates")[0];
+      if (!coordEl) continue;
+      var parts = coordEl.textContent.trim().split(",");
+      var lng = parseFloat(parts[0]), lat = parseFloat(parts[1]);
+      if (isNaN(lat) || isNaN(lng)) continue;
+
+      var name = childText(pm, "name") || "(unnamed)";
+      var desc = childText(pm, "description") || "";
+      // strip HTML from description for search/display
+      var descPlain = desc.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]*>/g, " ")
+                          .replace(/[ \t]+/g, " ").trim();
+      // Clean spreadsheet-import boilerplate:
+      // "X: -81.79 Y: 46.06 description: OWNER unnamed (1): unnamed (2):"
+      descPlain = cleanImportedDesc(descPlain);
+
+      // ExtendedData: <Data name="x"><value>y</value></Data> and SchemaData/SimpleData
+      var meta = [];
+      var dataEls = pm.getElementsByTagName("Data");
+      for (var d = 0; d < dataEls.length; d++){
+        var k = dataEls[d].getAttribute("name") || "";
+        var v = childText(dataEls[d], "value") || "";
+        if (SKIP_FIELDS.test(k) || !v) continue;
+        meta.push(k + ": " + v);
+      }
+      var simple = pm.getElementsByTagName("SimpleData");
+      for (var s = 0; s < simple.length; s++){
+        var rawK = simple[s].getAttribute("name") || "";
+        var label = fieldNames[rawK] || rawK;
+        var val = simple[s].textContent.trim();
+        if (SKIP_FIELDS.test(label) || !val) continue;
+        // avoid duplicating the description already shown
+        if (label === "description" && descPlain.indexOf(val) !== -1) continue;
+        meta.push(label + ": " + val);
+      }
+
+      // Folder path for context
+      var path = [], node = pm.parentNode;
+      while (node && node.tagName){
+        if (node.tagName === "Folder" || node.tagName === "Document"){
+          var fn = childText(node, "name");
+          if (fn) path.unshift(fn);
+        }
+        node = node.parentNode;
+      }
+
+      out.push({
+        name: name, desc: descPlain, meta: meta, path: path.join(" › "),
+        lat: lat, lng: lng,
+        hay: (name + " " + descPlain + " " + meta.join(" ") + " " + path.join(" ")).toLowerCase()
+      });
+    }
+    return out;
+  }
+
+  function cleanImportedDesc(s){
+    var flat = s.replace(/\n/g, " ");
+    var m = flat.match(/^X:\s*[-\d.]+\s+Y:\s*[-\d.]+\s+description:\s*(.*?)\s*unnamed \(1\):\s*(.*?)\s*unnamed \(2\):\s*(.*)$/);
+    if (!m) return s;
+    var kept = [m[1], m[2], m[3]].map(function(x){ return x.replace(/[;\s]+$/, "").trim(); })
+                                 .filter(Boolean);
+    return kept.join(" · ");
+  }
+
+  // direct-child text (avoids grabbing nested Placemark names inside Folders)
+  function childText(el, tag){
+    for (var i = 0; i < el.children.length; i++){
+      if (el.children[i].tagName === tag) return el.children[i].textContent.trim();
+    }
+    return "";
+  }
+
+  // ---- Auto-load: BICA_TP_Search.kml next to this file > manual picker ----
+  var KML_FILE = "BICA_TP_Search.kml";
+
+  function activate(kmlText, sourceLabel){
+    // strip BOM / leading whitespace so the XML declaration is at position 0
+    pins = parseKML(kmlText.replace(/^\uFEFF/, "").trim());
+    count.textContent = pins.length + " pins loaded" + (sourceLabel ? " (" + sourceLabel + ")" : "");
+    box.disabled = false;
+    box.focus();
+    render(box.value);
+  }
+
+  function init(){
+    fetch(KML_FILE, {cache: "no-store"})
+      .then(function(r){ if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function(text){ activate(text, KML_FILE); })
+      .catch(function(){
+        // KML missing, or page opened via file:// — point to the admin banner
+        loader.open = true;
+        count.textContent = "could not load " + KML_FILE;
+      });
+  }
+  init();
+
+  // ---- Manual file loading (admin banner; KML only) ----
+  document.getElementById("file").addEventListener("change", function(e){
+    var f = e.target.files[0];
+    if (!f) return;
+    if (/\.kmz$/i.test(f.name)){
+      count.textContent = "KMZ is zipped — unzip it and load the doc.kml inside.";
+      return;
+    }
+    var r = new FileReader();
+    r.onload = function(){
+      try { activate(r.result, f.name); }
+      catch(err){ count.textContent = "Load failed: " + err.message; }
+    };
+    r.readAsText(f);
+  });
+
+  // ---- Search ------------------------------------------------------------
+  var t = null;
+  box.addEventListener("input", function(){
+    clearTimeout(t);
+    t = setTimeout(function(){ render(box.value); }, 120);
+  });
+
+  function render(query){
+    var q = query.trim().toLowerCase();
+    results.innerHTML = "";
+    if (!q){
+      results.innerHTML = '<p class="empty">Type to search ' + pins.length + ' pins.</p>';
+      return;
+    }
+    var terms = q.split(/\s+/);
+    var hits = pins.filter(function(p){
+      return terms.every(function(term){ return p.hay.indexOf(term) !== -1; });
+    });
+    if (!hits.length){
+      results.innerHTML = '<p class="empty">No pins match \u201C' + escapeHTML(query) + '\u201D.</p>';
+      return;
+    }
+    var frag = document.createDocumentFragment();
+    hits.slice(0, 200).forEach(function(p){ frag.appendChild(pinCard(p, terms)); });
+    results.appendChild(frag);
+    if (hits.length > 200){
+      var more = document.createElement("p");
+      more.className = "empty";
+      more.textContent = hits.length + " matches — showing first 200. Narrow the search.";
+      results.appendChild(more);
+    }
+  }
+
+  function pinCard(p, terms){
+    var el = document.createElement("div");
+    el.className = "pin";
+    var lat = p.lat.toFixed(6), lng = p.lng.toFixed(6);
+    var ll = lat + "," + lng;
+    var encName = encodeURIComponent(p.name);
+
+    var gmaps = "https://www.google.com/maps/search/?api=1&query=" + ll;
+    var amaps = "https://maps.apple.com/?ll=" + ll + "&q=" + encName;
+    var geo   = "geo:" + ll + "?q=" + ll + "(" + encName + ")";
+
+    var html = "";
+    if (p.path) html += '<div class="path">' + hl(p.path, terms) + '</div>';
+    html += "<h2>" + hl(p.name, terms) + "</h2>";
+    html += '<div class="coords">' + ll + "</div>";
+    if (p.desc) html += '<div class="desc">' + hl(p.desc, terms) + "</div>";
+    if (p.meta.length) html += '<div class="desc">' + hl(p.meta.join(" · "), terms) + "</div>";
+    html += '<div class="links">'
+          + '<a href="' + gmaps + '" target="_blank" rel="noopener">Google Maps</a>'
+          + '<a href="' + amaps + '" target="_blank" rel="noopener">Apple Maps</a>'
+          + '<a href="' + geo + '">geo: (mobile)</a>'
+          + '<button type="button" data-copy="' + ll + '">Copy coords</button>'
+          + '<button type="button" data-kml="1">Download pin .kml</button>'
+          + "</div>";
+    el.innerHTML = html;
+
+    el.querySelector("[data-copy]").addEventListener("click", function(){
+      navigator.clipboard.writeText(ll).then(function(){
+        var b = el.querySelector("[data-copy]");
+        b.textContent = "Copied";
+        setTimeout(function(){ b.textContent = "Copy coords"; }, 1200);
+      });
+    });
+    el.querySelector("[data-kml]").addEventListener("click", function(){
+      downloadPinKML(p);
+    });
+    return el;
+  }
+
+  function downloadPinKML(p){
+    var kml = '<?xml version="1.0" encoding="UTF-8"?>\n'
+      + '<kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark>'
+      + "<name>" + escapeXML(p.name) + "</name>"
+      + (p.desc ? "<description>" + escapeXML(p.desc) + "</description>" : "")
+      + "<Point><coordinates>" + p.lng + "," + p.lat + ",0</coordinates></Point>"
+      + "</Placemark></Document></kml>";
+    var blob = new Blob([kml], {type: "application/vnd.google-earth.kml+xml"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = p.name.replace(/[^\w\- ]+/g, "").trim().replace(/\s+/g, "_") + ".kml";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  function escapeHTML(s){
+    return s.replace(/[&<>"]/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+    });
+  }
+  function escapeXML(s){
+    return s.replace(/[&<>]/g, function(c){
+      return {"&":"&amp;","<":"&lt;",">":"&gt;"}[c];
+    });
+  }
+  // highlight search terms
+  function hl(s, terms){
+    var safe = escapeHTML(s);
+    terms.forEach(function(term){
+      if (!term) return;
+      var re = new RegExp("(" + term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ")", "ig");
+      safe = safe.replace(re, "<mark>$1</mark>");
+    });
+    return safe;
+  }
+})();
+</script>
+</body>
+</html>
