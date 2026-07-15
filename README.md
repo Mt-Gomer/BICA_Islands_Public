@@ -45,9 +45,9 @@ any name into the form — without a review step, someone could impersonate an
 owner or vandalize a pin's data.
 
 Setup:
-1. Create a free form at formspree.io and grab its endpoint (`https://formspree.io/f/XXXXXXX`).
-2. In `site/BICA_Islands_Public.html`, set `FORMSPREE_ENDPOINT` to that URL (search for `YOUR_FORM_ID`).
-3. Until that's set, the button shows an error instead of submitting — so the placeholder is safe to ship.
+1. Formspree endpoint is already wired up: `https://formspree.io/f/mojgjdoq` (set as `FORMSPREE_ENDPOINT` in `site/BICA_Islands_Public.html`).
+2. In the Formspree dashboard, on this form's **Settings** tab, add the live site's origin under **Allowed Domains / CORS** — plain `https://mt-gomer.github.io` (no path). Without this, the browser's `fetch` POST gets blocked as cross-origin since it's a JSON request, not a plain form submit.
+3. On the same **Settings** tab, enable the spam-filtering options (reCAPTCHA / Akismet / honeypot, whichever Formspree currently offers on your plan) since this is a public, unauthenticated form.
 
 ## Running locally
 
