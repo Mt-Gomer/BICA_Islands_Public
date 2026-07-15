@@ -32,6 +32,13 @@
   .pin{background:var(--panel);border:1px solid var(--shoal);border-left:4px solid var(--buoy);
        border-radius:0 6px 6px 0;padding:.8rem 1rem;margin-bottom:.7rem}
   .pin h2{font-size:1.02rem;font-weight:600}
+  .pin-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem}
+  .pin-head h2{flex:1 1 auto}
+  .optin-btn{flex:0 0 auto;font-family:var(--mono);font-size:.68rem;text-decoration:none;
+        white-space:nowrap;color:#fff;background:var(--buoy);border:1px solid var(--buoy);
+        border-radius:4px;padding:.3rem .55rem;cursor:pointer}
+  .optin-btn:hover{opacity:.85}
+  .optin-btn:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
   .path{font-family:var(--mono);font-size:.7rem;color:var(--dim);text-transform:uppercase;
         letter-spacing:.05em;margin-bottom:.15rem}
   .coords{font-family:var(--mono);font-size:.82rem;color:var(--dim);margin:.15rem 0 .4rem}
@@ -296,7 +303,8 @@
 
     var html = "";
     if (p.path) html += '<div class="path">' + hl(p.path, terms) + '</div>';
-    html += "<h2>" + hl(p.name, terms) + "</h2>";
+    html += '<div class="pin-head"><h2>' + hl(p.name, terms) + '</h2>'
+          + '<button type="button" class="optin-btn" data-share="1">Opt-In Owner Info</button></div>';
     html += '<div class="coords">' + ll + "</div>";
     if (p.desc) html += '<div class="desc">' + hl(p.desc, terms) + "</div>";
     if (p.meta.length) html += '<div class="desc">' + hl(p.meta.join(" · "), terms) + "</div>";
@@ -306,7 +314,6 @@
           + '<a href="' + geo + '">geo: (mobile)</a>'
           + '<button type="button" data-copy="' + ll + '">Copy coords</button>'
           + '<button type="button" data-kml="1">Download pin .kml</button>'
-          + '<button type="button" data-share="1">Share your info</button>'
           + "</div>";
     el.innerHTML = html;
 
