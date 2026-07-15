@@ -11,6 +11,7 @@
     --panel:#ffffff;
     --shoal:#d7e4e8;      /* shallow-water tint */
     --buoy:#c2452d;       /* buoy red accent */
+    --marker:#2f7a4d;     /* channel marker green accent */
     --dim:#5f7480;
     --mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
     --sans:"Avenir Next","Segoe UI",system-ui,sans-serif;
@@ -35,7 +36,7 @@
   .pin-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem}
   .pin-head h2{flex:1 1 auto}
   .optin-btn{flex:0 0 auto;font-family:var(--mono);font-size:.68rem;text-decoration:none;
-        white-space:nowrap;color:#fff;background:var(--buoy);border:1px solid var(--buoy);
+        white-space:nowrap;color:#fff;background:var(--marker);border:1px solid var(--marker);
         border-radius:4px;padding:.3rem .55rem;cursor:pointer}
   .optin-btn:hover{opacity:.85}
   .optin-btn:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
@@ -304,7 +305,7 @@
     var html = "";
     if (p.path) html += '<div class="path">' + hl(p.path, terms) + '</div>';
     html += '<div class="pin-head"><h2>' + hl(p.name, terms) + '</h2>'
-          + '<button type="button" class="optin-btn" data-share="1">Opt-In Owner Info</button></div>';
+          + '<button type="button" class="optin-btn" data-share="1">Opt-In Owner Info or Correction</button></div>';
     html += '<div class="coords">' + ll + "</div>";
     if (p.desc) html += '<div class="desc">' + hl(p.desc, terms) + "</div>";
     if (p.meta.length) html += '<div class="desc">' + hl(p.meta.join(" · "), terms) + "</div>";
