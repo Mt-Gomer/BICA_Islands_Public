@@ -46,8 +46,8 @@ owner or vandalize a pin's data.
 
 Setup:
 1. Formspree endpoint is already wired up: `https://formspree.io/f/mojgjdoq` (set as `FORMSPREE_ENDPOINT` in `site/BICA_Islands_Public.html`).
-2. In the Formspree dashboard, on this form's **Settings** tab, add the live site's origin under **Allowed Domains / CORS** — plain `https://mt-gomer.github.io` (no path). Without this, the browser's `fetch` POST gets blocked as cross-origin since it's a JSON request, not a plain form submit.
-3. On the same **Settings** tab, enable the spam-filtering options (reCAPTCHA / Akismet / honeypot, whichever Formspree currently offers on your plan) since this is a public, unauthenticated form.
+2. No CORS/domain config is required — Formspree accepts cross-origin AJAX (`fetch`) JSON submissions by default. Optionally, lock the form down to this site only via **Restrict to Domain**, under the **Project's** Settings tab (one level above the individual form) — set it to `mt-gomer.github.io`. Unauthorized-domain submissions get routed to the spam inbox instead of being rejected.
+3. On this form's **Settings** tab, under **Spam Protection**, turn on **Formshield** (ML-based spam filtering). **CAPTCHA** is optional if you want an extra layer on top.
 
 ## Running locally
 
