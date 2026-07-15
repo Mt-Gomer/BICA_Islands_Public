@@ -97,19 +97,24 @@
 
 <dialog id="shareModal">
   <form class="modal-body" method="dialog" id="shareForm">
-    <h3>Share info about this pin</h3>
+    <h3>Correct or add info to this pin</h3>
     <div class="modal-tp" id="shareModalTP"></div>
     <p class="hint">Optional. This is opt-in only — nothing you enter here appears on the
-      public map. It goes to the site maintainer, who reviews and manually adds it later.</p>
+      public map. It goes to the site maintainer, who reviews and manually adds it later,
+      when it will become fully searchable.</p>
 
     <label for="shareName">Name / owner (optional)</label>
     <input type="text" id="shareName" name="name" maxlength="120" autocomplete="off">
 
+    <label for="shareCoords">Correct GPS coordinates (optional)</label>
+    <input type="text" id="shareCoords" name="coords" maxlength="60" autocomplete="off">
+
     <label for="shareNotes">Notes (optional)</label>
     <textarea id="shareNotes" name="notes" maxlength="1000"></textarea>
 
-    <label for="shareEmail">Your email (optional, in case we have questions)</label>
-    <input type="email" id="shareEmail" name="email" autocomplete="off">
+    <label for="shareEmail">Your email (required)</label>
+    <input type="email" id="shareEmail" name="email" autocomplete="off" required>
+    <p class="hint">Used to verify this information and confirm your consent to make it public — not published itself.</p>
 
     <label class="consent">
       <input type="checkbox" id="shareConsent" required>
@@ -344,6 +349,7 @@
   var shareForm = document.getElementById("shareForm");
   var shareStatus = document.getElementById("shareStatus");
   var shareModalTP = document.getElementById("shareModalTP");
+  var shareCoords = document.getElementById("shareCoords");
   var shareSubmit = document.getElementById("shareSubmit");
   var currentSharePin = null;
 
@@ -351,6 +357,7 @@
     currentSharePin = p;
     shareModalTP.textContent = p.name + "  ·  " + p.lat.toFixed(6) + "," + p.lng.toFixed(6);
     shareForm.reset();
+    shareCoords.placeholder = "currently " + p.lat.toFixed(6) + "," + p.lng.toFixed(6);
     shareStatus.textContent = "";
     shareStatus.className = "status";
     shareSubmit.disabled = false;
@@ -375,6 +382,7 @@
       lat: currentSharePin.lat,
       lng: currentSharePin.lng,
       name: document.getElementById("shareName").value.trim(),
+      corrected_coords: shareCoords.value.trim(),
       notes: document.getElementById("shareNotes").value.trim(),
       email: document.getElementById("shareEmail").value.trim()
     };

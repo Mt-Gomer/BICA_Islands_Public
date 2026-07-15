@@ -32,10 +32,11 @@ Served automatically by GitHub Pages from the `main` branch (site root, `/`). An
 
 ## Opt-in submissions
 
-Each pin card has a "Share your info" button that opens an in-page form (name,
-notes, contact email, and a required consent checkbox). Submissions POST
-directly to [Formspree](https://formspree.io) from the browser — there's still
-no server or database in this repo.
+Each pin card has an "Opt-In Owner Info or Correction" button that opens an
+in-page form (name, corrected GPS coordinates, notes, required contact email,
+and a required consent checkbox). Submissions POST directly to
+[Formspree](https://formspree.io) from the browser — there's still no server
+or database in this repo.
 
 **Submissions never touch the live KML automatically.** They land in your
 Formspree inbox/dashboard for manual review, and you decide what (if anything)
