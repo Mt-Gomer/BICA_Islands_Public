@@ -34,6 +34,9 @@
   #results{margin-top:1.2rem}
   .pin{background:var(--panel);border:1px solid var(--shoal);border-left:4px solid var(--buoy);
        border-radius:0 6px 6px 0;padding:.8rem 1rem;margin-bottom:.7rem}
+  .pin.flash{animation:flashHighlight 1.5s ease}
+  @keyframes flashHighlight{0%{background:#ffe08a}100%{background:var(--panel)}}
+  .results-map{display:none;margin-top:0}
   .pin h2{font-size:1.02rem;font-weight:600}
   .pin-head{display:flex;justify-content:space-between;align-items:flex-start;gap:.6rem}
   .pin-head h2{flex:1 1 auto}
@@ -101,6 +104,9 @@
         justify-content:center;font-size:14px;line-height:1;border:2px solid #fff;
         background:var(--marker);box-shadow:0 1px 3px rgba(0,0,0,.45);transition:transform .12s ease}
   .owner-pin.active{transform:scale(1.4);border-color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.55)}
+  .result-pin{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:12px;line-height:1;border:2px solid #fff;
+        background:var(--buoy);box-shadow:0 1px 3px rgba(0,0,0,.45)}
   .legend-dot{flex:0 0 auto;width:1.15rem;height:1.15rem;border-radius:50%;display:inline-flex;
         align-items:center;justify-content:center;font-size:.68rem;line-height:1}
   .safety-filters{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem}
@@ -154,6 +160,7 @@
          autocomplete="off" disabled aria-label="Search pins">
 
   <div id="results" aria-live="polite"></div>
+  <div id="resultsMap" class="safety-map results-map"></div>
 
   <details id="ownersSection" class="list-section">
     <summary>Open list of owners who have opted-in</summary>
@@ -392,6 +399,7 @@
     if (!q){
       results.innerHTML = '<p class="empty">Type to search ' + pins.length
         + ' location pins. All were manually annotated and could have errors.</p>';
+      updateResultsMap([]);
       return;
     }
     var terms = q.split(/\s+/);
@@ -400,10 +408,16 @@
     });
     if (!hits.length){
       results.innerHTML = '<p class="empty">No pins match \u201C' + escapeHTML(query) + '\u201D.</p>';
+      updateResultsMap([]);
       return;
     }
+    var shown = hits.slice(0, 200);
     var frag = document.createDocumentFragment();
-    hits.slice(0, 200).forEach(function(p){ frag.appendChild(pinCard(p, terms)); });
+    shown.forEach(function(p){
+      var card = pinCard(p, terms);
+      card.dataset.tp = p.name;
+      frag.appendChild(card);
+    });
     results.appendChild(frag);
     if (hits.length > 200){
       var more = document.createElement("p");
@@ -411,6 +425,60 @@
       more.textContent = hits.length + " matches — showing first 200. Narrow the search.";
       results.appendChild(more);
     }
+    updateResultsMap(shown);
+  }
+
+  // ---- Mini map of the current search results, between #results and the
+  // owners/safety sections. Hidden with no query/no matches (394 markers by
+  // default would be useless); initializes lazily the first time there's
+  // something to show, since Leaflet can't size itself while display:none.
+  var resultsMap = null;
+  var resultsMarkersLayer = null;
+  var resultsMapEl = document.getElementById("resultsMap");
+
+  function resultsDivIcon(){
+    return L.divIcon({
+      className: "safety-pin-icon",
+      html: '<div class="result-pin">📍</div>',
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+      popupAnchor: [0, -12]
+    });
+  }
+
+  function updateResultsMap(list){
+    if (!list.length){
+      resultsMapEl.style.display = "none";
+      return;
+    }
+    if (typeof L === "undefined") return; // CDN unreachable — results list still works
+    resultsMapEl.style.display = "block";
+    if (!resultsMap){
+      resultsMap = L.map("resultsMap");
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+      }).addTo(resultsMap);
+      resultsMarkersLayer = L.layerGroup().addTo(resultsMap);
+    } else {
+      resultsMap.invalidateSize();
+    }
+    resultsMarkersLayer.clearLayers();
+    var bounds = [];
+    list.forEach(function(p){
+      var m = L.marker([p.lat, p.lng], {icon: resultsDivIcon()}).addTo(resultsMarkersLayer);
+      m.bindPopup(escapeHTML(p.name));
+      m.on("click", function(){
+        var card = document.querySelector('#results .pin[data-tp="' + p.name.replace(/"/g, '\\"') + '"]');
+        if (card){
+          card.scrollIntoView({behavior: "smooth", block: "center"});
+          card.classList.add("flash");
+          setTimeout(function(){ card.classList.remove("flash"); }, 1500);
+        }
+      });
+      bounds.push([p.lat, p.lng]);
+    });
+    resultsMap.fitBounds(bounds, {padding: [20, 20], maxZoom: 15});
   }
 
   // ---- Shared: expand a pin's full card inline under a clicked list row ---
