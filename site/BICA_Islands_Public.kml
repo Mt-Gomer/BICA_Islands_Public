@@ -103,6 +103,8 @@
 <ExtendedData>
 <Data name="Owner"><value>Montgomery</value></Data>
 <Data name="Notes"><value>MtGomer</value></Data>
+<Data name="Safety"><value>Fire Pump, Backboard</value></Data>
+<Data name="Contact"><value>860-460-1578</value></Data>
 </ExtendedData>
 <Point><coordinates>-81.7753535,46.08313190000001,0</coordinates></Point>
 </Placemark>

@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BICA Island Search</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <style>
   :root{
     --ink:#16303f;        /* chart ink navy */
@@ -57,24 +59,59 @@
   mark{background:#ffe08a;color:inherit;padding:0 1px}
   .empty{color:var(--dim);font-style:italic;padding:1rem 0}
 
-  #ownersSection{margin-top:2.4rem;padding-top:1.2rem;border-top:3px double var(--ink)}
-  #ownersSection summary{font-size:1rem;letter-spacing:.03em;font-weight:600;color:var(--ink);
+  .list-section{margin-top:2.4rem;padding-top:1.2rem;border-top:3px double var(--ink)}
+  .list-section summary{font-size:1rem;letter-spacing:.03em;font-weight:600;color:var(--ink);
         cursor:pointer;padding:.2rem 0}
-  #ownersSection summary:focus-visible{outline:3px solid var(--buoy);outline-offset:1px}
-  #ownerSearchBox{width:100%;font-size:.92rem;padding:.5rem .7rem;border:2px solid var(--ink);
-        border-radius:6px;background:var(--panel);font-family:var(--sans);color:var(--ink);
-        margin:.8rem 0 .7rem}
-  #ownerSearchBox:focus{outline:3px solid var(--buoy);outline-offset:1px;border-color:var(--buoy)}
-  #ownersList{list-style:none}
-  #ownersList li{margin-bottom:.4rem}
-  #ownersList button{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;
+  .list-section summary:focus-visible{outline:3px solid var(--buoy);outline-offset:1px}
+  .list-section input[type="search"]{width:100%;font-size:.92rem;padding:.5rem .7rem;
+        border:2px solid var(--ink);border-radius:6px;background:var(--panel);
+        font-family:var(--sans);color:var(--ink);margin:.8rem 0 .7rem}
+  .list-section input[type="search"]:focus{outline:3px solid var(--buoy);outline-offset:1px;border-color:var(--buoy)}
+  .list-section ul{list-style:none}
+  .list-section li{margin-bottom:.4rem}
+  .list-section button:not(.filter-chip){display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;
         width:100%;text-align:left;font-family:var(--sans);font-size:.88rem;color:var(--ink);
         background:var(--panel);border:1px solid var(--shoal);border-left:4px solid var(--marker);
         border-radius:0 5px 5px 0;padding:.5rem .7rem;cursor:pointer}
-  #ownersList button:hover{background:var(--shoal)}
-  #ownersList button:focus-visible{outline:3px solid var(--buoy)}
-  #ownersList .owner-name{font-weight:600}
-  #ownersList .owner-tp{font-family:var(--mono);font-size:.75rem;color:var(--dim);white-space:nowrap}
+  .list-section button:not(.filter-chip):hover{background:var(--shoal)}
+  .list-section button:not(.filter-chip):focus-visible{outline:3px solid var(--buoy)}
+  .list-section .entry-label{font-weight:600}
+  .list-section .entry-tp{font-family:var(--mono);font-size:.75rem;color:var(--dim);white-space:nowrap}
+  #safetySection button:not(.filter-chip){border-left-color:var(--buoy)}
+
+  .safety{display:flex;flex-wrap:wrap;gap:.35rem;margin:.3rem 0}
+  .safety-tag{font-family:var(--mono);font-size:.7rem;white-space:nowrap;color:#fff;
+        background:var(--buoy);border-radius:4px;padding:.2rem .5rem}
+  .locate-row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;margin-bottom:.7rem}
+  #locateBtn{font-family:var(--mono);font-size:.78rem;color:var(--ink);background:var(--paper);
+        border:1px solid var(--ink);border-radius:4px;padding:.35rem .7rem;cursor:pointer}
+  #locateBtn:hover{background:var(--ink);color:var(--paper)}
+  #locateBtn:disabled{opacity:.6;cursor:default}
+  .locate-status{font-size:.78rem;color:var(--dim)}
+  .entry-dist{font-family:var(--mono);font-size:.75rem;color:var(--buoy);white-space:nowrap}
+  .safety-map{height:240px;border:1px solid var(--shoal);border-radius:6px;margin-bottom:.8rem;
+        background:var(--shoal)}
+  .safety-map .leaflet-popup-content{font-family:var(--sans);font-size:.85rem;color:var(--ink)}
+  .safety-pin-icon{background:transparent;border:none}
+  .safety-pin{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:14px;line-height:1;border:2px solid #fff;
+        box-shadow:0 1px 3px rgba(0,0,0,.45);transition:transform .12s ease}
+  .safety-pin.active{transform:scale(1.4);border-color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.55)}
+  .owner-pin{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;
+        justify-content:center;font-size:14px;line-height:1;border:2px solid #fff;
+        background:var(--marker);box-shadow:0 1px 3px rgba(0,0,0,.45);transition:transform .12s ease}
+  .owner-pin.active{transform:scale(1.4);border-color:var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.55)}
+  .legend-dot{flex:0 0 auto;width:1.15rem;height:1.15rem;border-radius:50%;display:inline-flex;
+        align-items:center;justify-content:center;font-size:.68rem;line-height:1}
+  .safety-filters{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.8rem}
+  .filter-chip{font-family:var(--mono);font-size:.72rem;padding:.3rem .65rem;border-radius:999px;
+        cursor:pointer;background:var(--panel);color:var(--ink);
+        border:2px solid var(--chip-color, var(--dim))}
+  .filter-chip:hover{opacity:.8}
+  .filter-chip:focus-visible{outline:3px solid var(--buoy);outline-offset:1px}
+  .filter-chip.active{background:var(--chip-color, var(--ink));color:#fff}
+  .inline-detail{margin-top:.5rem}
+  .inline-detail .pin{margin-bottom:0}
   @media (prefers-reduced-motion:no-preference){
     .pin{animation:rise .12s ease-out}
     @keyframes rise{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
@@ -94,6 +131,8 @@
   #shareModal textarea{min-height:4.5em;resize:vertical}
   #shareModal .consent{display:flex;gap:.5rem;align-items:flex-start;margin-top:.8rem;font-size:.78rem}
   #shareModal .consent input{margin-top:.2rem}
+  #shareModal .safety-checks{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.3rem}
+  #shareModal #shareSafetyOther{margin-top:.5rem}
   #shareModal .modal-actions{display:flex;justify-content:flex-end;gap:.5rem;margin-top:1rem}
   #shareModal .modal-actions button{font-family:var(--mono);font-size:.8rem;padding:.4rem .8rem;
         border-radius:4px;cursor:pointer}
@@ -116,11 +155,25 @@
 
   <div id="results" aria-live="polite"></div>
 
-  <details id="ownersSection">
+  <details id="ownersSection" class="list-section">
     <summary>Open list of owners who have opted-in</summary>
     <input id="ownerSearchBox" type="search" placeholder="Search opted-in owner names…"
            autocomplete="off" aria-label="Search opted-in owners">
+    <div id="ownersMap" class="safety-map"></div>
     <ul id="ownersList"></ul>
+  </details>
+
+  <details id="safetySection" class="list-section">
+    <summary>Open list of safety equipment on the islands</summary>
+    <input id="safetySearchBox" type="search" placeholder="Search safety equipment (e.g. defibrillator)…"
+           autocomplete="off" aria-label="Search safety equipment">
+    <div id="safetyFilters" class="safety-filters"></div>
+    <div class="locate-row">
+      <button type="button" id="locateBtn">📍 Sort by distance from me</button>
+      <span id="locateStatus" class="locate-status"></span>
+    </div>
+    <div id="safetyMap" class="safety-map"></div>
+    <ul id="safetyList"></ul>
   </details>
 </div>
 
@@ -140,6 +193,20 @@
 
     <label for="shareNotes">Notes (optional)</label>
     <textarea id="shareNotes" name="notes" maxlength="1000"></textarea>
+
+    <label>Safety equipment on this island (optional)</label>
+    <div class="safety-checks" id="shareSafetyChecks"></div>
+    <input type="text" id="shareSafetyOther" name="safety_other" maxlength="200" autocomplete="off"
+           placeholder="Other equipment not listed above (comma-separated)">
+
+    <label for="sharePublicContact">Public phone or email (optional)</label>
+    <input type="text" id="sharePublicContact" name="public_contact" maxlength="120" autocomplete="off"
+           placeholder="Only shown if you check the box below">
+    <label class="consent">
+      <input type="checkbox" id="sharePublicContactConsent">
+      <span>Yes, show this phone/email publicly next to my listing (separate from the
+        verification email below, which is never published).</span>
+    </label>
 
     <label for="shareEmail">Your email (required)</label>
     <input type="email" id="shareEmail" name="email" autocomplete="off" required>
@@ -169,6 +236,8 @@
      This HTML file never needs to be edited.
      ================================================================ -->
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script>
 (function(){
   "use strict";
@@ -217,6 +286,7 @@
       var meta = [];
       var owner = "";
       var badge = "";
+      var safety = "";
       var dataEls = pm.getElementsByTagName("Data");
       for (var d = 0; d < dataEls.length; d++){
         var k = dataEls[d].getAttribute("name") || "";
@@ -226,6 +296,9 @@
         // deliberately excluded from meta/search so it can't flood unrelated searches
         // or collide with real owner-name text.
         if (k.toLowerCase() === "badge"){ badge = v; continue; }
+        // Safety equipment gets its own chip rendering (not the generic meta line)
+        // but must stay searchable, so it's folded into hay separately below.
+        if (k.toLowerCase() === "safety"){ safety = v; continue; }
         if (SKIP_FIELDS.test(k)) continue;
         if (k.toLowerCase() === "owner") owner = v;
         meta.push(k + ": " + v);
@@ -237,6 +310,7 @@
         var val = simple[s].textContent.trim();
         if (!val) continue;
         if (label.toLowerCase() === "badge"){ badge = val; continue; }
+        if (label.toLowerCase() === "safety"){ safety = val; continue; }
         if (SKIP_FIELDS.test(label)) continue;
         // avoid duplicating the description already shown
         if (label === "description" && descPlain.indexOf(val) !== -1) continue;
@@ -255,9 +329,10 @@
       }
 
       out.push({
-        name: name, desc: descPlain, meta: meta, path: path.join(" › "), owner: owner, badge: badge,
+        name: name, desc: descPlain, meta: meta, path: path.join(" › "),
+        owner: owner, badge: badge, safety: safety,
         lat: lat, lng: lng,
-        hay: (name + " " + descPlain + " " + meta.join(" ") + " " + path.join(" ")).toLowerCase()
+        hay: (name + " " + descPlain + " " + meta.join(" ") + " " + path.join(" ") + " " + safety).toLowerCase()
       });
     }
     return out;
@@ -291,6 +366,7 @@
     box.focus();
     render(box.value);
     renderOwnersList();
+    renderSafetyList();
   }
 
   function init(){
@@ -337,6 +413,25 @@
     }
   }
 
+  // ---- Shared: expand a pin's full card inline under a clicked list row ---
+  // (instead of jumping the page up to the main search results, which users
+  // found disorienting)
+  function toggleInlineDetail(li, p){
+    var existing = li.querySelector(".inline-detail");
+    if (existing){
+      existing.remove();
+      return false;
+    }
+    var openOnes = li.parentNode.querySelectorAll(".inline-detail");
+    for (var i = 0; i < openOnes.length; i++) openOnes[i].remove();
+    var detail = document.createElement("div");
+    detail.className = "inline-detail";
+    detail.appendChild(pinCard(p, []));
+    li.appendChild(detail);
+    detail.scrollIntoView({behavior: "smooth", block: "nearest"});
+    return true;
+  }
+
   // ---- Opted-in owners list -----------------------------------------------
   var ownerPins = [];
   var ownerSearchBox = document.getElementById("ownerSearchBox");
@@ -354,6 +449,7 @@
     var shown = terms.length
       ? ownerPins.filter(function(p){ return terms.every(function(term){ return p.hay.indexOf(term) !== -1; }); })
       : ownerPins;
+    updateOwnerMapMarkers(shown);
     list.innerHTML = "";
     if (!ownerPins.length){
       list.innerHTML = '<li class="empty">No owners have opted in yet.</li>';
@@ -365,14 +461,13 @@
     }
     shown.forEach(function(p){
       var li = document.createElement("li");
+      li.dataset.tp = p.name;
       var btn = document.createElement("button");
       btn.type = "button";
-      btn.innerHTML = '<span class="owner-name">' + escapeHTML(p.owner) + '</span>'
-                     + '<span class="owner-tp">' + escapeHTML(p.name) + '</span>';
+      btn.innerHTML = '<span class="entry-label">' + escapeHTML(p.owner) + '</span>'
+                     + '<span class="entry-tp">' + escapeHTML(p.name) + '</span>';
       btn.addEventListener("click", function(){
-        box.value = p.name;
-        render(box.value);
-        results.scrollIntoView({behavior: "smooth", block: "start"});
+        setOwnerMarkerHighlight(p.name, toggleInlineDetail(li, p));
       });
       li.appendChild(btn);
       list.appendChild(li);
@@ -382,6 +477,331 @@
   ownerSearchBox.addEventListener("input", function(){
     filterOwnersList(ownerSearchBox.value);
   });
+
+  // Mini map of opted-in owners, mirroring the safety-equipment map: lazy
+  // init on first open (Leaflet can't size itself inside a collapsed
+  // <details>), one consistent green pin (owners aren't categorized like
+  // equipment types), click syncs with the list in both directions.
+  var ownersMap = null;
+  var ownersMarkersLayer = null;
+  var ownerMarkersByTp = {};
+  var activeOwnerTp = null;
+
+  document.getElementById("ownersSection").addEventListener("toggle", function(ev){
+    if (ev.target.open) initOwnersMap();
+  });
+
+  function initOwnersMap(){
+    if (ownersMap){ ownersMap.invalidateSize(); return; }
+    if (typeof L === "undefined") return;
+    ownersMap = L.map("ownersMap");
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    }).addTo(ownersMap);
+    ownersMarkersLayer = L.layerGroup().addTo(ownersMap);
+    updateOwnerMapMarkers(ownerPins);
+  }
+
+  function ownerDivIcon(){
+    return L.divIcon({
+      className: "safety-pin-icon",
+      html: '<div class="owner-pin">🏠</div>',
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13]
+    });
+  }
+
+  function setOwnerMarkerHighlight(tp, isOn){
+    if (activeOwnerTp && ownerMarkersByTp[activeOwnerTp]){
+      var prevM = ownerMarkersByTp[activeOwnerTp];
+      var prevEl = prevM.getElement();
+      if (prevEl) prevEl.querySelector(".owner-pin").classList.remove("active");
+      prevM.setZIndexOffset(0);
+    }
+    activeOwnerTp = null;
+    if (isOn && ownerMarkersByTp[tp]){
+      var m = ownerMarkersByTp[tp];
+      var el = m.getElement();
+      if (el) el.querySelector(".owner-pin").classList.add("active");
+      m.setZIndexOffset(1000);
+      activeOwnerTp = tp;
+    }
+  }
+
+  function updateOwnerMapMarkers(list){
+    if (!ownersMap || !ownersMarkersLayer) return;
+    ownersMarkersLayer.clearLayers();
+    ownerMarkersByTp = {};
+    activeOwnerTp = null;
+    if (!list.length){
+      ownersMap.setView([46.08, -81.8], 11);
+      return;
+    }
+    var bounds = [];
+    list.forEach(function(p){
+      var m = L.marker([p.lat, p.lng], {icon: ownerDivIcon()}).addTo(ownersMarkersLayer);
+      m.bindPopup(escapeHTML(p.name + " - " + p.owner));
+      m.on("click", function(){
+        var li = document.querySelector('#ownersList li[data-tp="' + p.name.replace(/"/g, '\\"') + '"]');
+        if (li){
+          setOwnerMarkerHighlight(p.name, toggleInlineDetail(li, p));
+          li.scrollIntoView({behavior: "smooth", block: "center"});
+        }
+      });
+      ownerMarkersByTp[p.name] = m;
+      bounds.push([p.lat, p.lng]);
+    });
+    ownersMap.fitBounds(bounds, {padding: [20, 20], maxZoom: 15});
+  }
+
+  // ---- Safety equipment list ----------------------------------------------
+  var safetyPins = [];
+  var safetySearchBox = document.getElementById("safetySearchBox");
+  var locateBtn = document.getElementById("locateBtn");
+  var locateStatus = document.getElementById("locateStatus");
+  var userLoc = null; // {lat, lng} once the user opts in to sharing location
+
+  function distanceKm(lat1, lng1, lat2, lng2){
+    var R = 6371;
+    var dLat = (lat2 - lat1) * Math.PI / 180;
+    var dLng = (lng2 - lng1) * Math.PI / 180;
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+          + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180)
+          * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  var selectedSafetyTypes = {}; // set-of-strings via object keys; empty = show all categories
+
+  function pinSafetyTypes(p){
+    return p.safety.split(",").map(function(s){ return s.trim(); }).filter(Boolean);
+  }
+
+  function renderSafetyList(){
+    safetyPins = pins.filter(function(p){ return p.safety; })
+      .sort(function(a, b){ return a.safety.toLowerCase().localeCompare(b.safety.toLowerCase()) || a.name.localeCompare(b.name); });
+    renderSafetyFilters();
+    filterSafetyList(safetySearchBox.value);
+  }
+
+  function renderSafetyFilters(){
+    var wrap = document.getElementById("safetyFilters");
+    var types = [];
+    safetyPins.forEach(function(p){
+      pinSafetyTypes(p).forEach(function(t){ if (types.indexOf(t) === -1) types.push(t); });
+    });
+    types.sort(function(a, b){ return a.localeCompare(b); });
+    wrap.innerHTML = "";
+    types.forEach(function(t){
+      var style = safetyTypeStyle(t);
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "filter-chip" + (selectedSafetyTypes[t] ? " active" : "");
+      chip.style.setProperty("--chip-color", style.color);
+      chip.textContent = style.icon + " " + t;
+      chip.setAttribute("aria-pressed", selectedSafetyTypes[t] ? "true" : "false");
+      chip.addEventListener("click", function(){
+        if (selectedSafetyTypes[t]) delete selectedSafetyTypes[t];
+        else selectedSafetyTypes[t] = true;
+        renderSafetyFilters();
+        filterSafetyList(safetySearchBox.value);
+      });
+      wrap.appendChild(chip);
+    });
+  }
+
+  function filterSafetyList(query){
+    var list = document.getElementById("safetyList");
+    var q = query.trim().toLowerCase();
+    var terms = q ? q.split(/\s+/) : [];
+    var shown = terms.length
+      ? safetyPins.filter(function(p){ return terms.every(function(term){ return p.hay.indexOf(term) !== -1; }); })
+      : safetyPins.slice();
+    var activeTypes = Object.keys(selectedSafetyTypes);
+    if (activeTypes.length){
+      shown = shown.filter(function(p){
+        return pinSafetyTypes(p).some(function(t){ return selectedSafetyTypes[t]; });
+      });
+    }
+    if (userLoc){
+      shown.forEach(function(p){ p._distKm = distanceKm(userLoc.lat, userLoc.lng, p.lat, p.lng); });
+      shown.sort(function(a, b){ return a._distKm - b._distKm; });
+    }
+    updateSafetyMapMarkers(shown);
+    list.innerHTML = "";
+    if (!safetyPins.length){
+      list.innerHTML = '<li class="empty">No safety equipment listed yet.</li>';
+      return;
+    }
+    if (!shown.length){
+      list.innerHTML = '<li class="empty">No equipment matches that search/filter.</li>';
+      return;
+    }
+    shown.forEach(function(p){
+      var li = document.createElement("li");
+      li.dataset.tp = p.name;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      var firstType = pinSafetyTypes(p)[0];
+      var dot = '<span class="legend-dot" style="background:' + safetyTypeStyle(firstType).color + '">'
+              + safetyTypeStyle(firstType).icon + "</span>";
+      var distHTML = userLoc ? '<span class="entry-dist">' + p._distKm.toFixed(1) + " km</span>" : "";
+      var tpLabel = p.name + (p.owner ? " - " + p.owner : "");
+      btn.innerHTML = dot + '<span class="entry-label">' + escapeHTML(p.safety) + '</span>'
+                     + distHTML
+                     + '<span class="entry-tp">' + escapeHTML(tpLabel) + '</span>';
+      btn.addEventListener("click", function(){
+        setSafetyMarkerHighlight(p.name, toggleInlineDetail(li, p));
+      });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
+
+  safetySearchBox.addEventListener("input", function(){
+    filterSafetyList(safetySearchBox.value);
+  });
+
+  locateBtn.addEventListener("click", function(){
+    if (userLoc){
+      userLoc = null;
+      locateBtn.textContent = "📍 Sort by distance from me";
+      locateStatus.textContent = "";
+      filterSafetyList(safetySearchBox.value);
+      return;
+    }
+    if (!navigator.geolocation){
+      locateStatus.textContent = "Geolocation isn't supported on this device.";
+      return;
+    }
+    locateStatus.textContent = "Locating…";
+    locateBtn.disabled = true;
+    navigator.geolocation.getCurrentPosition(function(pos){
+      userLoc = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+      locateBtn.disabled = false;
+      locateBtn.textContent = "📍 Sorted by distance — clear";
+      locateStatus.textContent = "";
+      filterSafetyList(safetySearchBox.value);
+    }, function(err){
+      locateBtn.disabled = false;
+      locateStatus.textContent = "Couldn't get your location (" + err.message + ").";
+    }, {enableHighAccuracy: true, timeout: 8000});
+  });
+
+  // Mini map of safety equipment, via Leaflet + OpenStreetMap (no API key/billing).
+  // Lazy-initialized on first open — Leaflet can't size itself correctly inside a
+  // collapsed <details>, so we wait until the section is actually visible.
+  var safetyMap = null;
+  var safetyMarkersLayer = null;
+
+  document.getElementById("safetySection").addEventListener("toggle", function(ev){
+    if (ev.target.open) initSafetyMap();
+  });
+
+  function initSafetyMap(){
+    if (safetyMap){ safetyMap.invalidateSize(); return; }
+    if (typeof L === "undefined") return; // CDN unreachable — fail gracefully, list still works
+    safetyMap = L.map("safetyMap");
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
+    }).addTo(safetyMap);
+    safetyMarkersLayer = L.layerGroup().addTo(safetyMap);
+    updateSafetyMapMarkers(safetyPins);
+  }
+
+  // The 3 main categories get curated colors/icons. Anything else (owner-typed
+  // "Other" text) falls back to a secondary palette, assigned in first-seen
+  // order and memoized, so custom types stay visually consistent across
+  // re-filters without any code changes needed to support them.
+  var SAFETY_STYLE = {
+    "Fire Pump":     {color: "#e0592a", icon: "🧯"},
+    "Defibrillator": {color: "#2f6fed", icon: "⚡"},
+    "Backboard":     {color: "#d9a441", icon: "🩹"}
+  };
+  var SAFETY_OTHER_PALETTE = ["#3f9c8f", "#8b5cf6", "#d6558c", "#5b7c99", "#7a8c3a", "#c2455f"];
+  var SAFETY_OTHER_ICON = "🛟";
+  var safetyOtherColorMap = {};
+
+  function safetyTypeStyle(type){
+    if (SAFETY_STYLE[type]) return SAFETY_STYLE[type];
+    if (!safetyOtherColorMap[type]){
+      var used = Object.keys(safetyOtherColorMap).length;
+      safetyOtherColorMap[type] = SAFETY_OTHER_PALETTE[used % SAFETY_OTHER_PALETTE.length];
+    }
+    return {color: safetyOtherColorMap[type], icon: SAFETY_OTHER_ICON};
+  }
+
+  function safetyTypeIcon(type){
+    return safetyTypeStyle(type).icon;
+  }
+
+  // Marker/dot color for a pin: based on its first listed equipment type.
+  function safetyTypeColor(safetyValue){
+    var type = (safetyValue || "").split(",")[0].trim();
+    return safetyTypeStyle(type).color;
+  }
+
+  var safetyMarkersByTp = {};
+  var activeSafetyTp = null;
+
+  function safetyDivIcon(firstType){
+    var style = safetyTypeStyle(firstType);
+    return L.divIcon({
+      className: "safety-pin-icon",
+      html: '<div class="safety-pin" style="background:' + style.color + '">' + style.icon + "</div>",
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -13]
+    });
+  }
+
+  function setSafetyMarkerHighlight(tp, isOn){
+    if (activeSafetyTp && safetyMarkersByTp[activeSafetyTp]){
+      var prevM = safetyMarkersByTp[activeSafetyTp];
+      var prevEl = prevM.getElement();
+      if (prevEl) prevEl.querySelector(".safety-pin").classList.remove("active");
+      prevM.setZIndexOffset(0);
+    }
+    activeSafetyTp = null;
+    if (isOn && safetyMarkersByTp[tp]){
+      var m = safetyMarkersByTp[tp];
+      var el = m.getElement();
+      if (el) el.querySelector(".safety-pin").classList.add("active");
+      m.setZIndexOffset(1000);
+      activeSafetyTp = tp;
+    }
+  }
+
+  function updateSafetyMapMarkers(list){
+    if (!safetyMap || !safetyMarkersLayer) return;
+    safetyMarkersLayer.clearLayers();
+    safetyMarkersByTp = {};
+    activeSafetyTp = null;
+    if (!list.length){
+      safetyMap.setView([46.08, -81.8], 11); // Bay of Islands, roughly centered
+      return;
+    }
+    var bounds = [];
+    list.forEach(function(p){
+      var firstType = pinSafetyTypes(p)[0];
+      var m = L.marker([p.lat, p.lng], {icon: safetyDivIcon(firstType)}).addTo(safetyMarkersLayer);
+      var popupLabel = p.name + (p.owner ? " - " + p.owner : "");
+      m.bindPopup(escapeHTML(popupLabel) + "<br>" + escapeHTML(p.safety));
+      m.on("click", function(){
+        var li = document.querySelector('#safetyList li[data-tp="' + p.name.replace(/"/g, '\\"') + '"]');
+        if (li){
+          setSafetyMarkerHighlight(p.name, toggleInlineDetail(li, p));
+          li.scrollIntoView({behavior: "smooth", block: "center"});
+        }
+      });
+      safetyMarkersByTp[p.name] = m;
+      bounds.push([p.lat, p.lng]);
+    });
+    safetyMap.fitBounds(bounds, {padding: [20, 20], maxZoom: 15});
+  }
 
   function pinCard(p, terms){
     var el = document.createElement("div");
@@ -400,6 +820,13 @@
           + (p.badge ? '<span class="badge">' + escapeHTML(p.badge) + '</span>' : '')
           + '<button type="button" class="optin-btn" data-share="1">Opt-In Owner Info or Correction</button></div>';
     html += '<div class="coords">' + ll + "</div>";
+    if (p.safety){
+      html += '<div class="safety">' + p.safety.split(",").map(function(s){
+        var t = s.trim();
+        var style = safetyTypeStyle(t);
+        return '<span class="safety-tag" style="background:' + style.color + '">' + style.icon + " " + hl(t, terms) + "</span>";
+      }).join("") + "</div>";
+    }
     if (p.desc) html += '<div class="desc">' + hl(p.desc, terms) + "</div>";
     if (p.meta.length) html += '<div class="desc">' + hl(p.meta.join(" · "), terms) + "</div>";
     html += '<div class="links">'
@@ -433,18 +860,46 @@
   // into BICA_Islands_Public.kml. See README "Opt-in submissions" section.
   var FORMSPREE_ENDPOINT = "https://formspree.io/f/mojgjdoq";
 
+  // The 3 main safety categories owners can opt in to reporting via chips;
+  // anything else goes in the free-text "Other" field. Add new fixed
+  // categories to SAFETY_STYLE above only — this list and the payload both
+  // build off that.
+  var SAFETY_OPTIONS = ["Fire Pump", "Defibrillator", "Backboard"];
+
   var shareModal = document.getElementById("shareModal");
   var shareForm = document.getElementById("shareForm");
   var shareStatus = document.getElementById("shareStatus");
   var shareModalTP = document.getElementById("shareModalTP");
   var shareCoords = document.getElementById("shareCoords");
+  var shareSafetyChecks = document.getElementById("shareSafetyChecks");
+  var shareSafetyOther = document.getElementById("shareSafetyOther");
   var shareSubmit = document.getElementById("shareSubmit");
   var currentSharePin = null;
+
+  SAFETY_OPTIONS.forEach(function(opt){
+    var style = safetyTypeStyle(opt);
+    var chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "filter-chip";
+    chip.style.setProperty("--chip-color", style.color);
+    chip.textContent = style.icon + " " + opt;
+    chip.dataset.value = opt;
+    chip.setAttribute("aria-pressed", "false");
+    chip.addEventListener("click", function(){
+      var active = chip.classList.toggle("active");
+      chip.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    shareSafetyChecks.appendChild(chip);
+  });
 
   function openShareModal(p){
     currentSharePin = p;
     shareModalTP.textContent = p.name + "  ·  " + p.lat.toFixed(6) + "," + p.lng.toFixed(6);
     shareForm.reset();
+    Array.prototype.forEach.call(shareSafetyChecks.querySelectorAll(".filter-chip"), function(chip){
+      chip.classList.remove("active");
+      chip.setAttribute("aria-pressed", "false");
+    });
     shareCoords.placeholder = "currently " + p.lat.toFixed(6) + "," + p.lng.toFixed(6);
     shareStatus.textContent = "";
     shareStatus.className = "status";
@@ -465,6 +920,17 @@
       shareStatus.textContent = "Submissions aren't configured yet on this deployment.";
       return;
     }
+    var publicContact = document.getElementById("sharePublicContact").value.trim();
+    var publicContactConsent = document.getElementById("sharePublicContactConsent").checked;
+    if (publicContact && !publicContactConsent){
+      shareStatus.className = "status error";
+      shareStatus.textContent = "Check the box under “Public phone or email” to publish that contact info, or clear the field.";
+      return;
+    }
+    var safetySelected = Array.prototype.slice.call(shareSafetyChecks.querySelectorAll(".filter-chip.active"))
+      .map(function(chip){ return chip.dataset.value; });
+    var safetyOther = shareSafetyOther.value.trim();
+    if (safetyOther) safetySelected.push(safetyOther);
     var payload = {
       tp_number: currentSharePin.name,
       lat: currentSharePin.lat,
@@ -472,6 +938,8 @@
       name: document.getElementById("shareName").value.trim(),
       corrected_coords: shareCoords.value.trim(),
       notes: document.getElementById("shareNotes").value.trim(),
+      safety: safetySelected.join(", "),
+      public_contact: publicContactConsent ? publicContact : "",
       email: document.getElementById("shareEmail").value.trim()
     };
     shareSubmit.disabled = true;
