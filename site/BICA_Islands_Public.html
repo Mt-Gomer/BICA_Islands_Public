@@ -40,6 +40,9 @@
         border-radius:4px;padding:.3rem .55rem;cursor:pointer}
   .optin-btn:hover{opacity:.85}
   .optin-btn:focus-visible{outline:3px solid var(--ink);outline-offset:1px}
+  .badge{flex:0 0 auto;font-family:var(--mono);font-size:.68rem;text-transform:uppercase;
+        letter-spacing:.03em;white-space:nowrap;color:var(--marker);border:1px solid var(--marker);
+        border-radius:4px;padding:.2rem .45rem}
   .path{font-family:var(--mono);font-size:.7rem;color:var(--dim);text-transform:uppercase;
         letter-spacing:.05em;margin-bottom:.15rem}
   .coords{font-family:var(--mono);font-size:.82rem;color:var(--dim);margin:.15rem 0 .4rem}
@@ -53,6 +56,25 @@
   .links a:focus-visible,.links button:focus-visible,#searchbox:focus-visible{outline:3px solid var(--buoy)}
   mark{background:#ffe08a;color:inherit;padding:0 1px}
   .empty{color:var(--dim);font-style:italic;padding:1rem 0}
+
+  #ownersSection{margin-top:2.4rem;padding-top:1.2rem;border-top:3px double var(--ink)}
+  #ownersSection summary{font-size:1rem;letter-spacing:.03em;font-weight:600;color:var(--ink);
+        cursor:pointer;padding:.2rem 0}
+  #ownersSection summary:focus-visible{outline:3px solid var(--buoy);outline-offset:1px}
+  #ownerSearchBox{width:100%;font-size:.92rem;padding:.5rem .7rem;border:2px solid var(--ink);
+        border-radius:6px;background:var(--panel);font-family:var(--sans);color:var(--ink);
+        margin:.8rem 0 .7rem}
+  #ownerSearchBox:focus{outline:3px solid var(--buoy);outline-offset:1px;border-color:var(--buoy)}
+  #ownersList{list-style:none}
+  #ownersList li{margin-bottom:.4rem}
+  #ownersList button{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;
+        width:100%;text-align:left;font-family:var(--sans);font-size:.88rem;color:var(--ink);
+        background:var(--panel);border:1px solid var(--shoal);border-left:4px solid var(--marker);
+        border-radius:0 5px 5px 0;padding:.5rem .7rem;cursor:pointer}
+  #ownersList button:hover{background:var(--shoal)}
+  #ownersList button:focus-visible{outline:3px solid var(--buoy)}
+  #ownersList .owner-name{font-weight:600}
+  #ownersList .owner-tp{font-family:var(--mono);font-size:.75rem;color:var(--dim);white-space:nowrap}
   @media (prefers-reduced-motion:no-preference){
     .pin{animation:rise .12s ease-out}
     @keyframes rise{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
@@ -89,10 +111,17 @@
     <span id="count">no file loaded</span>
   </header>
 
-  <input id="searchbox" type="search" placeholder="Search full or partial TP numbers…"
+  <input id="searchbox" type="search" placeholder="Search full or partial TP numbers and metadata for opt-in owners…"
          autocomplete="off" disabled aria-label="Search pins">
 
   <div id="results" aria-live="polite"></div>
+
+  <details id="ownersSection">
+    <summary>Open list of owners who have opted-in</summary>
+    <input id="ownerSearchBox" type="search" placeholder="Search opted-in owner names…"
+           autocomplete="off" aria-label="Search opted-in owners">
+    <ul id="ownersList"></ul>
+  </details>
 </div>
 
 <dialog id="shareModal">
@@ -186,11 +215,19 @@
 
       // ExtendedData: <Data name="x"><value>y</value></Data> and SchemaData/SimpleData
       var meta = [];
+      var owner = "";
+      var badge = "";
       var dataEls = pm.getElementsByTagName("Data");
       for (var d = 0; d < dataEls.length; d++){
         var k = dataEls[d].getAttribute("name") || "";
         var v = childText(dataEls[d], "value") || "";
-        if (SKIP_FIELDS.test(k) || !v) continue;
+        if (!v) continue;
+        // Badge is a display-only tag (e.g. "Full Island") — shown on the card but
+        // deliberately excluded from meta/search so it can't flood unrelated searches
+        // or collide with real owner-name text.
+        if (k.toLowerCase() === "badge"){ badge = v; continue; }
+        if (SKIP_FIELDS.test(k)) continue;
+        if (k.toLowerCase() === "owner") owner = v;
         meta.push(k + ": " + v);
       }
       var simple = pm.getElementsByTagName("SimpleData");
@@ -198,16 +235,19 @@
         var rawK = simple[s].getAttribute("name") || "";
         var label = fieldNames[rawK] || rawK;
         var val = simple[s].textContent.trim();
-        if (SKIP_FIELDS.test(label) || !val) continue;
+        if (!val) continue;
+        if (label.toLowerCase() === "badge"){ badge = val; continue; }
+        if (SKIP_FIELDS.test(label)) continue;
         // avoid duplicating the description already shown
         if (label === "description" && descPlain.indexOf(val) !== -1) continue;
+        if (label.toLowerCase() === "owner") owner = val;
         meta.push(label + ": " + val);
       }
 
-      // Folder path for context
+      // Folder path for context (Document is the file-level title, not per-pin metadata — excluded)
       var path = [], node = pm.parentNode;
       while (node && node.tagName){
-        if (node.tagName === "Folder" || node.tagName === "Document"){
+        if (node.tagName === "Folder"){
           var fn = childText(node, "name");
           if (fn) path.unshift(fn);
         }
@@ -215,7 +255,7 @@
       }
 
       out.push({
-        name: name, desc: descPlain, meta: meta, path: path.join(" › "),
+        name: name, desc: descPlain, meta: meta, path: path.join(" › "), owner: owner, badge: badge,
         lat: lat, lng: lng,
         hay: (name + " " + descPlain + " " + meta.join(" ") + " " + path.join(" ")).toLowerCase()
       });
@@ -250,6 +290,7 @@
     box.disabled = false;
     box.focus();
     render(box.value);
+    renderOwnersList();
   }
 
   function init(){
@@ -296,6 +337,52 @@
     }
   }
 
+  // ---- Opted-in owners list -----------------------------------------------
+  var ownerPins = [];
+  var ownerSearchBox = document.getElementById("ownerSearchBox");
+
+  function renderOwnersList(){
+    ownerPins = pins.filter(function(p){ return p.owner; })
+      .sort(function(a, b){ return a.owner.toLowerCase().localeCompare(b.owner.toLowerCase()); });
+    filterOwnersList(ownerSearchBox.value);
+  }
+
+  function filterOwnersList(query){
+    var list = document.getElementById("ownersList");
+    var q = query.trim().toLowerCase();
+    var terms = q ? q.split(/\s+/) : [];
+    var shown = terms.length
+      ? ownerPins.filter(function(p){ return terms.every(function(term){ return p.hay.indexOf(term) !== -1; }); })
+      : ownerPins;
+    list.innerHTML = "";
+    if (!ownerPins.length){
+      list.innerHTML = '<li class="empty">No owners have opted in yet.</li>';
+      return;
+    }
+    if (!shown.length){
+      list.innerHTML = '<li class="empty">No owners match that search.</li>';
+      return;
+    }
+    shown.forEach(function(p){
+      var li = document.createElement("li");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.innerHTML = '<span class="owner-name">' + escapeHTML(p.owner) + '</span>'
+                     + '<span class="owner-tp">' + escapeHTML(p.name) + '</span>';
+      btn.addEventListener("click", function(){
+        box.value = p.name;
+        render(box.value);
+        results.scrollIntoView({behavior: "smooth", block: "start"});
+      });
+      li.appendChild(btn);
+      list.appendChild(li);
+    });
+  }
+
+  ownerSearchBox.addEventListener("input", function(){
+    filterOwnersList(ownerSearchBox.value);
+  });
+
   function pinCard(p, terms){
     var el = document.createElement("div");
     el.className = "pin";
@@ -310,6 +397,7 @@
     var html = "";
     if (p.path) html += '<div class="path">' + hl(p.path, terms) + '</div>';
     html += '<div class="pin-head"><h2>' + hl(p.name, terms) + '</h2>'
+          + (p.badge ? '<span class="badge">' + escapeHTML(p.badge) + '</span>' : '')
           + '<button type="button" class="optin-btn" data-share="1">Opt-In Owner Info or Correction</button></div>';
     html += '<div class="coords">' + ll + "</div>";
     if (p.desc) html += '<div class="desc">' + hl(p.desc, terms) + "</div>";

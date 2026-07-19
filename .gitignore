@@ -1,1 +1,4 @@
 .DS_Store
+
+# Local-only owner data (never push to this public repo)
+private/

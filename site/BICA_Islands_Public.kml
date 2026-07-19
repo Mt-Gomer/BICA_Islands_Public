@@ -2,7 +2,13 @@
 <kml xmlns="http://www.opengis.net/kml/2.2">
 <Document>
 <name>BICA TP Search (Public Sample)</name>
-<Placemark><name>TP2223</name><Point><coordinates>-81.79639705,46.066329800000005,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2223</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.79531250257203,46.06831910641181,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2224</name><Point><coordinates>-81.7862986,46.0671609,0</coordinates></Point></Placemark>
 <Placemark><name>TP2225</name><Point><coordinates>-81.79656341183183,46.06461403753868,0</coordinates></Point></Placemark>
 <Placemark><name>TP2226</name><Point><coordinates>-81.7975243,46.0646686,0</coordinates></Point></Placemark>
@@ -12,7 +18,13 @@
 <Placemark><name>TP2232</name><Point><coordinates>-81.79968123303071,46.06981222038312,0</coordinates></Point></Placemark>
 <Placemark><name>TP2240</name><Point><coordinates>-81.7825996,46.07117450000001,0</coordinates></Point></Placemark>
 <Placemark><name>TP2241</name><Point><coordinates>-81.7854705,46.0710466,0</coordinates></Point></Placemark>
-<Placemark><name>TP2243</name><Point><coordinates>-81.78239579999999,46.0726426,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2243</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.78239579999999,46.0726426,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2245</name><Point><coordinates>-81.786598,46.07464499999999,0</coordinates></Point></Placemark>
 <Placemark><name>TP2254</name><Point><coordinates>-81.78897505260659,46.07526819662665,0</coordinates></Point></Placemark>
 <Placemark><name>TP2260</name><Point><coordinates>-81.7830289,46.075919,0</coordinates></Point></Placemark>
@@ -26,8 +38,20 @@
 <Placemark><name>TP2285</name><Point><coordinates>-81.7728412,46.07750530000001,0</coordinates></Point></Placemark>
 <Placemark><name>TP2296</name><Point><coordinates>-81.77104929992689,46.07912189616198,0</coordinates></Point></Placemark>
 <Placemark><name>TP2297</name><Point><coordinates>-81.77012189365017,46.07772650737186,0</coordinates></Point></Placemark>
-<Placemark><name>TP2298</name><Point><coordinates>-81.7709919,46.07749255,0</coordinates></Point></Placemark>
-<Placemark><name>TP2300</name><Point><coordinates>-81.72921334285714,46.09980191428572,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2298</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.76746153932089,46.07813228677409,0</coordinates></Point>
+</Placemark>
+<Placemark>
+<name>TP2300</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.726956454148,46.09971039741537,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2301</name><Point><coordinates>-81.72420081792181,46.10327189647124,0</coordinates></Point></Placemark>
 <Placemark><name>TP2305</name><Point><coordinates>-81.72032859074288,46.1034350416648,0</coordinates></Point></Placemark>
 <Placemark><name>TP2307</name><Point><coordinates>-81.7302701,46.10195410000001,0</coordinates></Point></Placemark>
@@ -74,9 +98,22 @@
 <Placemark><name>TP2427</name><Point><coordinates>-81.75545268357074,46.07523891776082,0</coordinates></Point></Placemark>
 <Placemark><name>TP2429</name><Point><coordinates>-81.77091506035282,46.08180394195546,0</coordinates></Point></Placemark>
 <Placemark><name>TP2430</name><Point><coordinates>-81.7722182,46.0826608,0</coordinates></Point></Placemark>
-<Placemark><name>TP2431</name><Point><coordinates>-81.7753535,46.08313190000001,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2431</name>
+<ExtendedData>
+<Data name="Owner"><value>Montgomery</value></Data>
+<Data name="Notes"><value>MtGomer</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.7753535,46.08313190000001,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2432</name><Point><coordinates>-81.75927349844522,46.08411007119877,0</coordinates></Point></Placemark>
-<Placemark><name>TP2434</name><Point><coordinates>-81.76616062500001,46.085045324999996,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2434</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.76381309008737,46.08704768055206,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2435</name><Point><coordinates>-81.75543441584315,46.08915869572558,0</coordinates></Point></Placemark>
 <Placemark><name>TP2436</name><Point><coordinates>-81.75779078544502,46.08878182275981,0</coordinates></Point></Placemark>
 <Placemark><name>TP2437</name><Point><coordinates>-81.7593207257805,46.08867404034169,0</coordinates></Point></Placemark>
@@ -84,7 +121,13 @@
 <Placemark><name>TP2440</name><Point><coordinates>-81.75792882142306,46.09062233066076,0</coordinates></Point></Placemark>
 <Placemark><name>TP2441</name><Point><coordinates>-81.75875090057497,46.09077246310628,0</coordinates></Point></Placemark>
 <Placemark><name>TP2443</name><Point><coordinates>-81.76514215052507,46.09014130548748,0</coordinates></Point></Placemark>
-<Placemark><name>TP2445</name><Point><coordinates>-81.77265969999999,46.090490224999996,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2445</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.77000988827049,46.09087162829657,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2451</name><Point><coordinates>-81.7707187,46.085928,0</coordinates></Point></Placemark>
 <Placemark><name>TP2453</name><Point><coordinates>-81.77204337871318,46.08579660780246,0</coordinates></Point></Placemark>
 <Placemark><name>TP2455</name><Point><coordinates>-81.77329987817897,46.08520454214161,0</coordinates></Point></Placemark>
@@ -107,7 +150,13 @@
 <Placemark><name>TP2497</name><Point><coordinates>-81.7851777,46.0905672,0</coordinates></Point></Placemark>
 <Placemark><name>TP2500</name><Point><coordinates>-81.75228739589598,46.08548680101323,0</coordinates></Point></Placemark>
 <Placemark><name>TP2501</name><Point><coordinates>-81.74999819960586,46.08576514817035,0</coordinates></Point></Placemark>
-<Placemark><name>TP2502</name><Point><coordinates>-81.74668335000001,46.0835341,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2502</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.74668335000001,46.08353409999999,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2503</name><Point><coordinates>-81.74744960690693,46.08421808177039,0</coordinates></Point></Placemark>
 <Placemark><name>TP2506</name><Point><coordinates>-81.74570604311427,46.08454550405399,0</coordinates></Point></Placemark>
 <Placemark><name>TP2509</name><Point><coordinates>-81.7443489651738,46.08458550286723,0</coordinates></Point></Placemark>
@@ -121,7 +170,13 @@
 <Placemark><name>TP2533</name><Point><coordinates>-81.7999941,46.07715810000001,0</coordinates></Point></Placemark>
 <Placemark><name>TP2534</name><Point><coordinates>-81.80038947260377,46.07596040331057,0</coordinates></Point></Placemark>
 <Placemark><name>TP2537</name><Point><coordinates>-81.8034671193549,46.07475420957785,0</coordinates></Point></Placemark>
-<Placemark><name>TP2538</name><Point><coordinates>-81.7992826,46.0733295,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2538</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.79918107530165,46.07280665683072,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2543</name><Point><coordinates>-81.7992700141761,46.07573401628597,0</coordinates></Point></Placemark>
 <Placemark><name>TP2544</name><Point><coordinates>-81.79871141775551,46.0760408110041,0</coordinates></Point></Placemark>
 <Placemark><name>TP2547</name><Point><coordinates>-81.79888178062143,46.07545576808618,0</coordinates></Point></Placemark>
@@ -130,7 +185,13 @@
 <Placemark><name>TP2551</name><Point><coordinates>-81.79705975610946,46.07555357378813,0</coordinates></Point></Placemark>
 <Placemark><name>TP2556</name><Point><coordinates>-81.79598131859775,46.0752508835488,0</coordinates></Point></Placemark>
 <Placemark><name>TP2559</name><Point><coordinates>-81.7952751690959,46.07513519373504,0</coordinates></Point></Placemark>
-<Placemark><name>TP2560</name><Point><coordinates>-81.79582747629914,46.07575870414092,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2560</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.79545017867214,46.07578797321253,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2561</name><Point><coordinates>-81.79409163596497,46.07489711421012,0</coordinates></Point></Placemark>
 <Placemark><name>TP2565</name><Point><coordinates>-81.79495647157891,46.07470813609523,0</coordinates></Point></Placemark>
 <Placemark><name>TP2566</name><Point><coordinates>-81.7945593,46.0773746,0</coordinates></Point></Placemark>
@@ -139,7 +200,13 @@
 <Placemark><name>TP2570</name><Point><coordinates>-81.7903967,46.0765948,0</coordinates></Point></Placemark>
 <Placemark><name>TP2577</name><Point><coordinates>-81.79286056610187,46.07486944427174,0</coordinates></Point></Placemark>
 <Placemark><name>TP2584</name><Point><coordinates>-81.792434588385,46.07253635859846,0</coordinates></Point></Placemark>
-<Placemark><name>TP2590</name><Point><coordinates>-81.80783335000001,46.06519465000001,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2590</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.80783335000001,46.06519465000001,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2591</name><Point><coordinates>-81.8110982,46.0652641,0</coordinates></Point></Placemark>
 <Placemark><name>TP2592</name><Point><coordinates>-81.8114775,46.0631587,0</coordinates></Point></Placemark>
 <Placemark><name>TP2593</name><Point><coordinates>-81.813425,46.0635394,0</coordinates></Point></Placemark>
@@ -176,7 +243,13 @@
 <Placemark><name>TP2654</name><Point><coordinates>-81.867606,46.091443,0</coordinates></Point></Placemark>
 <Placemark><name>TP2655</name><Point><coordinates>-81.86679999378482,46.09299223207378,0</coordinates></Point></Placemark>
 <Placemark><name>TP2656</name><Point><coordinates>-81.86663351680521,46.09341480654218,0</coordinates></Point></Placemark>
-<Placemark><name>TP2659</name><Point><coordinates>-81.86772489508681,46.09378911701793,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2659</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.86675067439033,46.09513133405889,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2663</name><Point><coordinates>-81.870396,46.09543300000001,0</coordinates></Point></Placemark>
 <Placemark><name>TP2665</name><Point><coordinates>-81.87994625427741,46.09045945607635,0</coordinates></Point></Placemark>
 <Placemark><name>TP2667</name><Point><coordinates>-81.8699836,46.0856229,0</coordinates></Point></Placemark>
@@ -193,11 +266,23 @@
 <Placemark><name>TP2684</name><Point><coordinates>-81.84947836627389,46.08835224137341,0</coordinates></Point></Placemark>
 <Placemark><name>TP2687</name><Point><coordinates>-81.84883940143172,46.08459933876992,0</coordinates></Point></Placemark>
 <Placemark><name>TP2688</name><Point><coordinates>-81.7457529,46.0923406,0</coordinates></Point></Placemark>
-<Placemark><name>TP2690</name><Point><coordinates>-81.74285085,46.08766975,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2690</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.74371889577775,46.08845014680076,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2693</name><Point><coordinates>-81.7480935,46.0928657,0</coordinates></Point></Placemark>
 <Placemark><name>TP2694</name><Point><coordinates>-81.8455464,46.0827206,0</coordinates></Point></Placemark>
 <Placemark><name>TP2695</name><Point><coordinates>-81.84140586852052,46.08043055379709,0</coordinates></Point></Placemark>
-<Placemark><name>TP2697</name><Point><coordinates>-81.83026271232676,46.07194087406036,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2697</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.8340795638095,46.07381173097119,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2701</name><Point><coordinates>-81.78836174279724,46.08460800907488,0</coordinates></Point></Placemark>
 <Placemark><name>TP2702</name><Point><coordinates>-81.78773039255006,46.08457378160931,0</coordinates></Point></Placemark>
 <Placemark><name>TP2707</name><Point><coordinates>-81.7878408,46.0833372,0</coordinates></Point></Placemark>
@@ -240,7 +325,13 @@
 <Placemark><name>TP2782</name><Point><coordinates>-81.7856065,46.0864724,0</coordinates></Point></Placemark>
 <Placemark><name>TP2789</name><Point><coordinates>-81.79102823048208,46.08570063174805,0</coordinates></Point></Placemark>
 <Placemark><name>TP2790</name><Point><coordinates>-81.79196381508685,46.08570568872131,0</coordinates></Point></Placemark>
-<Placemark><name>TP2792</name><Point><coordinates>-81.8079072,46.068870149999995,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2792</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.8077740670506,46.0688970263594,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2794</name><Point><coordinates>-81.8070728,46.0672942,0</coordinates></Point></Placemark>
 <Placemark><name>TP2795</name><Point><coordinates>-81.817115,46.08008800000001,0</coordinates></Point></Placemark>
 <Placemark><name>TP2800</name><Point><coordinates>-81.81923080438938,46.08225015205402,0</coordinates></Point></Placemark>
@@ -345,7 +436,13 @@
 <Placemark><name>TP2977</name><Point><coordinates>-81.7883288397868,46.0958788758003,0</coordinates></Point></Placemark>
 <Placemark><name>TP2982</name><Point><coordinates>-81.77766142798576,46.10227550481881,0</coordinates></Point></Placemark>
 <Placemark><name>TP2983</name><Point><coordinates>-81.77631317023072,46.10248228919906,0</coordinates></Point></Placemark>
-<Placemark><name>TP2985</name><Point><coordinates>-81.771792,46.101287049999996,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2985</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.771792,46.10128705,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2988</name><Point><coordinates>-81.76922990007655,46.10323968264542,0</coordinates></Point></Placemark>
 <Placemark><name>TP2991</name><Point><coordinates>-81.7731519,46.0998565,0</coordinates></Point></Placemark>
 <Placemark><name>TP2992</name><Point><coordinates>-81.76681034657238,46.10102735456613,0</coordinates></Point></Placemark>
@@ -367,13 +464,25 @@
 <Placemark><name>TP3030</name><Point><coordinates>-81.73863053258226,46.08626430750284,0</coordinates></Point></Placemark>
 <Placemark><name>TP3031</name><Point><coordinates>-81.73807034879279,46.08834450009783,0</coordinates></Point></Placemark>
 <Placemark><name>TP3032</name><Point><coordinates>-81.73776084448106,46.08768929079084,0</coordinates></Point></Placemark>
-<Placemark><name>TP3033</name><Point><coordinates>-81.74194889533777,46.09732462457912,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP3033</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.73584794549453,46.09093010286124,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP3034</name><Point><coordinates>-81.7384364692508,46.0931416818766,0</coordinates></Point></Placemark>
 <Placemark><name>TP3035</name><Point><coordinates>-81.73817994622856,46.09275114617316,0</coordinates></Point></Placemark>
 <Placemark><name>TP3037</name><Point><coordinates>-81.7683806,46.093924,0</coordinates></Point></Placemark>
 <Placemark><name>TP3041</name><Point><coordinates>-81.73111092955283,46.09258532692259,0</coordinates></Point></Placemark>
 <Placemark><name>TP3042</name><Point><coordinates>-81.72952106554237,46.09315622472334,0</coordinates></Point></Placemark>
-<Placemark><name>TP3043</name><Point><coordinates>-81.73249732898611,46.089677417041415,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP3043</name>
+<ExtendedData>
+<Data name="Badge"><value>Full Island</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.72931258424308,46.09266867421403,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP3044</name><Point><coordinates>-81.72757115667551,46.09344861331508,0</coordinates></Point></Placemark>
 <Placemark><name>TP3045</name><Point><coordinates>-81.72752305729792,46.09256949524495,0</coordinates></Point></Placemark>
 <Placemark><name>TP3047</name><Point><coordinates>-81.7365974683953,46.08631487732121,0</coordinates></Point></Placemark>
