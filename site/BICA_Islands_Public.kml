@@ -29,7 +29,14 @@
 <Placemark><name>TP2254</name><Point><coordinates>-81.78897505260659,46.07526819662665,0</coordinates></Point></Placemark>
 <Placemark><name>TP2260</name><Point><coordinates>-81.7830289,46.075919,0</coordinates></Point></Placemark>
 <Placemark><name>TP2261</name><Point><coordinates>-81.7799455,46.0767744,0</coordinates></Point></Placemark>
-<Placemark><name>TP2262</name><Point><coordinates>-81.778825,46.0763746,0</coordinates></Point></Placemark>
+<Placemark>
+<name>TP2262</name>
+<ExtendedData>
+<Data name="Owner"><value>Thoburn</value></Data>
+<Data name="Safety"><value>Fire Pump</value></Data>
+</ExtendedData>
+<Point><coordinates>-81.778825,46.0763746,0</coordinates></Point>
+</Placemark>
 <Placemark><name>TP2263</name><Point><coordinates>-81.7782809,46.07433289999999,0</coordinates></Point></Placemark>
 <Placemark><name>TP2264</name><Point><coordinates>-81.7783279,46.0785564,0</coordinates></Point></Placemark>
 <Placemark><name>TP2274</name><Point><coordinates>-81.77589038675069,46.07625870050865,0</coordinates></Point></Placemark>
