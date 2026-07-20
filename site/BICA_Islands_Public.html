@@ -248,6 +248,12 @@
 <script>
 (function(){
   "use strict";
+  // CARTO Positron: light, minimal style built on OSM data — free, no API key.
+  // Chosen over the default OSM tiles because it renders administrative
+  // boundary lines/labels (e.g. the Northeastern Manitoulin and the
+  // Islands / Killarney municipal line) much less prominently.
+  var TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+  var TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>';
   var pins = [];
   var box = document.getElementById("searchbox");
   var results = document.getElementById("results");
@@ -455,10 +461,7 @@
     resultsMapEl.style.display = "block";
     if (!resultsMap){
       resultsMap = L.map("resultsMap");
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
-      }).addTo(resultsMap);
+      L.tileLayer(TILE_URL, {maxZoom: 19, attribution: TILE_ATTRIBUTION}).addTo(resultsMap);
       resultsMarkersLayer = L.layerGroup().addTo(resultsMap);
     } else {
       resultsMap.invalidateSize();
@@ -563,10 +566,7 @@
     if (ownersMap){ ownersMap.invalidateSize(); return; }
     if (typeof L === "undefined") return;
     ownersMap = L.map("ownersMap");
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
-    }).addTo(ownersMap);
+    L.tileLayer(TILE_URL, {maxZoom: 19, attribution: TILE_ATTRIBUTION}).addTo(ownersMap);
     ownersMarkersLayer = L.layerGroup().addTo(ownersMap);
     updateOwnerMapMarkers(ownerPins);
   }
@@ -772,10 +772,7 @@
     if (safetyMap){ safetyMap.invalidateSize(); return; }
     if (typeof L === "undefined") return; // CDN unreachable — fail gracefully, list still works
     safetyMap = L.map("safetyMap");
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors'
-    }).addTo(safetyMap);
+    L.tileLayer(TILE_URL, {maxZoom: 19, attribution: TILE_ATTRIBUTION}).addTo(safetyMap);
     safetyMarkersLayer = L.layerGroup().addTo(safetyMap);
     updateSafetyMapMarkers(safetyPins);
   }
